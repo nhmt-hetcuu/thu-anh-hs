@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_top">
+    <title>Quản Trị - Thu Hình Ảnh Hoạt Động Đoàn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #1C2541;
+        --ink-soft: #4B5578;
+        --gold: #B8892B;
+        --gold-soft: rgba(184, 137, 43, 0.12);
+        --paper: #F5F2EC;
+        --surface: #FFFFFF;
+        --line: #E5E1D6;
+        --success: #1F7A4D;
+        --success-bg: #EAF6EF;
+        --error: #B3261E;
+        --error-bg: #FBEAEA;
+        --info: #0284C7;
+        --info-bg: #E0F2FE;
+        --muted: #767A8C;
+        --radius: 12px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--paper);
+        margin: 0;
+        padding: 20px;
+        color: var(--ink);
+        min-height: 100vh;
+      }
+
+      .hidden { display: none !important; }
+
+      /* ================= LOGIN FORM ================= */
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+      }
+
+      .login-card {
+        background: var(--surface);
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(28,37,65,0.08);
+        border: 1px solid var(--line);
+        width: 100%;
+        max-width: 400px;
+        overflow: hidden;
+      }
+
+      .accent-bar {
+        height: 5px;
+        background: linear-gradient(90deg, var(--gold), #D8B25F);
+      }
+
+      .login-header {
+        padding: 30px 28px 16px;
+        text-align: center;
+      }
+
+      .login-header h2 {
+        font-family: 'Source Serif 4', Georgia, serif;
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .login-body {
+        padding: 20px 28px 30px;
+      }
+
+      /* ================= APP LAYOUT ================= */
+      .app-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .navbar {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(28,37,65,0.04);
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--ink);
+      }
+
+      .nav-brand span.badge {
+        font-size: 11px;
+        background: var(--gold-soft);
+        color: var(--gold);
+        border: 1px solid rgba(184, 137, 43, 0.3);
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        font-size: 13.5px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.15s ease;
+        text-decoration: none;
+        font-family: inherit;
+      }
+
+      .btn-primary { background: var(--ink); color: #fff; }
+      .btn-primary:hover { background: #12192c; }
+
+      .btn-gold { background: var(--gold); color: #fff; }
+      .btn-gold:hover { background: #9c7322; }
+
+      .btn-outline {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+      .btn-outline:hover { background: var(--paper); border-color: #d8d3c5; }
+
+      .btn-danger {
+        background: var(--error-bg);
+        color: var(--error);
+        border-color: rgba(179,38,30,0.2);
+      }
+      .btn-danger:hover { background: #f7d4d4; }
+
+      .btn-sm { padding: 5px 10px; font-size: 12.5px; }
+
+      /* ================= TABS ================= */
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 12px;
+        overflow-x: auto;
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .tab-btn:hover { background: rgba(28,37,65,0.05); }
+
+      .tab-btn.active {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        border: 1px solid var(--line);
+      }
+
+      /* ================= DASHBOARD CARDS ================= */
+      .grid-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .card-stat {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+
+      .card-stat:hover {
+        transform: translateY(-2px);
+        border-color: var(--gold);
+      }
+
+      .card-stat.selected {
+        border-color: var(--gold);
+        background: #fffdf9;
+        box-shadow: 0 0 0 2px var(--gold-soft);
+      }
+
+      .card-stat .title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+
+      .card-stat .count {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+
+      .card-stat .count small {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--muted);
+      }
+
+      /* ================= CONTENT PANELS ================= */
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        margin-bottom: 24px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .panel-header h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .filter-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .input-text, select.input-select {
+        padding: 8px 12px;
+        font-size: 13.5px;
+        font-family: inherit;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .input-text:focus, select.input-select:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px var(--gold-soft);
+      }
+
+      /* ================= TABLE ================= */
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+        text-align: left;
+      }
+
+      table.data-table th {
+        background: #F8F7F3;
+        color: var(--ink-soft);
+        font-weight: 600;
+        padding: 10px 14px;
+        border-bottom: 1.5px solid var(--line);
+        white-space: nowrap;
+      }
+
+      table.data-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+
+      table.data-table tr:hover td {
+        background-color: #FAF8F5;
+      }
+
+      .badge-class {
+        display: inline-block;
+        background: var(--gold-soft);
+        color: var(--gold);
+        font-weight: 600;
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 6px;
+      }
+
+      /* ================= FORM ELEMENTS ================= */
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+
+      .form-group small.help {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+
+      .weeks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .week-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ================= BANNERS & NOTIFICATIONS ================= */
+      .banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13.5px;
+        margin-bottom: 16px;
+        border: 1px solid transparent;
+      }
+      .banner-success { background: var(--success-bg); color: var(--success); border-color: rgba(31,122,77,0.2); }
+      .banner-error { background: var(--error-bg); color: var(--error); border-color: rgba(179,38,30,0.2); }
+      .banner-info { background: var(--info-bg); color: var(--info); border-color: rgba(2,132,199,0.2); }
+
+      .spinner {
+        width: 16px; height: 16px;
+        border: 2px solid rgba(28,37,65,0.2);
+        border-top-color: var(--ink);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: inline-block;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ================= MODAL ================= */
+      .modal-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .modal-content {
+        background: var(--surface);
+        border-radius: var(--radius);
+        max-width: 500px;
+        width: 100%;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .modal-header h4 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--muted);
+      }
+
+      /* Preview Modal for Images */
+      .preview-image-modal img {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 600px) {
+        body { padding: 12px; }
+        .navbar { flex-direction: column; align-items: flex-start; }
+        .panel { padding: 16px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ================= LOGIN VIEW ================= -->
+    <div id="loginView" class="login-container">
+      <div class="login-card">
+        <div class="accent-bar"></div>
+        <div class="login-header">
+          <h2>Đăng Nhập Quản Trị</h2>
+          <div style="font-size: 13px; color: var(--muted);">Quản lý hệ thống thu hình ảnh Đoàn</div>
+        </div>
+        <div class="login-body">
+          <div id="loginMsg"></div>
+          <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="adminPass">Mật khẩu Quản trị</label>
+              <input type="password" id="adminPass" class="input-text" style="width: 100%;" placeholder="Mặc định: admin123" required autofocus>
+              <small class="help">Mật khẩu cấu hình tại ô B5 trong tab "Config" của Sheet.</small>
+            </div>
+            <button type="submit" id="loginBtn" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
+              <span>Đăng nhập</span>
+            </button>
+            <div style="text-align: center; margin-top: 16px;">
+              <a href="?" target="_top" style="font-size: 13px; color: var(--ink-soft); text-decoration: none;">← Quay lại trang nộp bài</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DASHBOARD VIEW ================= -->
+    <div id="adminDashboard" class="app-wrapper hidden">
+      <!-- Top Navigation -->
+      <header class="navbar">
+        <div class="nav-brand">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span id="navTitle">Bảng Quản Trị</span>
+          <span class="badge">Admin</span>
+        </div>
+        <div class="nav-links">
+          <a id="sheetLink" href="#" target="_blank" class="btn btn-outline btn-sm" title="Mở trực tiếp Google Sheet">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Mở Sheet
+          </a>
+          <a id="driveLink" href="#" target="_blank" class="btn btn-outline btn-sm" title="Mở thư mục Google Drive">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Mở Drive
+          </a>
+          <a href="?" target="_top" class="btn btn-outline btn-sm">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Xem Form
+          </a>
+          <button onclick="handleLogout()" class="btn btn-danger btn-sm">Đăng xuất</button>
+        </div>
+      </header>
+
+      <!-- Global Notification Banner -->
+      <div id="globalMsg"></div>
+
+      <!-- Navigation Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('submissionsTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Bài nộp & Thống kê
+        </button>
+        <button class="tab-btn" onclick="switchTab('configTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Cấu hình phong trào
+        </button>
+        <button class="tab-btn" onclick="switchTab('toolsTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Mật khẩu & Công cụ
+        </button>
+      </div>
+
+      <!-- ================= TAB 1: SUBMISSIONS & STATS ================= -->
+      <div id="submissionsTab">
+        <!-- Week Statistics Cards -->
+        <div id="statsContainer" class="grid-stats"></div>
+
+        <!-- Class Breakdown -->
+        <div id="classStatsPanel" class="panel hidden" style="padding: 16px 20px; margin-bottom: 16px; background: #FAF9F6;">
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Thống kê theo Lớp trong <span id="currentWeekTitle" style="color: var(--gold);">Tuần</span>:</div>
+          <div id="classBadgeList" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- Submissions Table Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <span id="submissionPanelTitle">Danh sách bài nộp</span>
+              <span id="submissionCountBadge" class="badge-class" style="font-size: 12px;">0 bài</span>
+            </h3>
+            <div class="filter-toolbar">
+              <input type="text" id="searchInput" class="input-text" placeholder="Tìm tên hoặc lớp..." oninput="filterSubmissionsTable()" style="width: 180px;">
+              <button onclick="loadSubmissions(currentSelectedWeek)" class="btn btn-outline btn-sm" title="Làm mới danh sách">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Làm mới
+              </button>
+            </div>
+          </div>
+
+          <div id="submissionsLoading" class="hidden" style="text-align: center; padding: 40px;">
+            <div class="spinner" style="width: 24px; height: 24px;"></div>
+            <div style="margin-top: 10px; font-size: 13.5px; color: var(--muted);">Đang tải dữ liệu bài nộp...</div>
+          </div>
+
+          <div id="submissionsTableWrapper" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 55px; text-align: center;">STT</th>
+                  <th>Họ và tên</th>
+                  <th>Lớp</th>
+                  <th>Thời gian</th>
+                  <th>Hình ảnh / Minh chứng</th>
+                  <th style="width: 80px; text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="submissionsTableBody">
+                <tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">Chọn một tuần ở trên để xem chi tiết</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: CONFIGURATION ================= -->
+      <div id="configTab" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Cấu hình thông tin phong trào</h3>
+            <button onclick="saveConfig()" id="saveConfigBtn" class="btn btn-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Lưu cấu hình
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label for="cfgSchool">Tên trường (Hiển thị góc trên form)</label>
+            <input type="text" id="cfgSchool" class="input-text" style="width: 100%;">
+          </div>
+
+          <div class="form-group">
+            <label for="cfgTitle">Tiêu đề phong trào</label>
+            <textarea id="cfgTitle" class="input-text" rows="2" style="width: 100%; font-family: inherit;"></textarea>
+            <small class="help">Có thể xuống dòng để tiêu đề hiển thị đẹp hơn.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="cfgNote">Ghi chú / Khẩu hiệu nhỏ</label>
+            <input type="text" id="cfgNote" class="input-text" style="width: 100%;" placeholder="VD: KHKT 2026-2027">
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="cfgSubfolder" style="width: 17px; height: 17px;">
+              <span>Tạo thêm thư mục con theo <b>Lớp</b> trong từng Tuần trên Google Drive</span>
+            </label>
+            <small class="help">Khi bật, trong mỗi thư mục Tuần sẽ tự chia các thư mục con 12A1, 12A2, 12A3...</small>
+          </div>
+
+          <div class="form-group" style="margin-top: 24px;">
+            <label>Danh sách các Tuần hoạt động:</label>
+            <div id="weeksContainer" class="weeks-list"></div>
+            <button type="button" onclick="addWeekRow('')" class="btn btn-outline btn-sm" style="margin-top: 10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Thêm tuần mới
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: TOOLS & SECURITY ================= -->
+      <div id="toolsTab" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Đổi mật khẩu trang Quản trị</h3>
+          </div>
+          <form onsubmit="handleChangePassword(event)" style="max-width: 450px;">
+            <div class="form-group">
+              <label for="currPass">Mật khẩu hiện tại</label>
+              <input type="password" id="currPass" class="input-text" style="width: 100%;" required>
+            </div>
+            <div class="form-group">
+              <label for="newPass">Mật khẩu mới</label>
+              <input type="password" id="newPass" class="input-text" style="width: 100%;" minlength="4" required>
+            </div>
+            <div class="form-group">
+              <label for="confirmPass">Xác nhận mật khẩu mới</label>
+              <input type="password" id="confirmPass" class="input-text" style="width: 100%;" minlength="4" required>
+            </div>
+            <button type="submit" id="changePassBtn" class="btn btn-primary">Cập nhật mật khẩu</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Bảo trì & Định dạng bảng Google Sheet</h3>
+          </div>
+          <p style="font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; margin: 0 0 16px;">
+            Hàm này sẽ tự động kẻ bảng, đóng băng dòng tiêu đề, tô màu xanh đậm, kẻ sọc so le và căn chỉnh cột cho tất cả các tab Tuần hiện có trong Google Sheet.
+          </p>
+          <button onclick="formatAllSheets()" id="formatSheetsBtn" class="btn btn-outline">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Định dạng lại tất cả tab trong Sheet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PHOTO PREVIEW MODAL ================= -->
+    <div id="imageModal" class="modal-backdrop hidden" onclick="closeImageModal()">
+      <div class="modal-content preview-image-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h4 id="imageModalTitle">Xem ảnh</h4>
+          <button class="close-btn" onclick="closeImageModal()">&times;</button>
+        </div>
+        <div style="text-align: center;">
+          <img id="modalImg" src="" alt="Minh chứng">
+        </div>
+        <div style="margin-top: 14px; text-align: right;">
+          <a id="modalDirectLink" href="#" target="_blank" class="btn btn-outline btn-sm">Mở trên Google Drive</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var adminToken = '';
+      var currentOverview = null;
+      var currentSelectedWeek = '';
+      var rawSubmissions = [];
+
+      function showBanner(containerId, type, message) {
+        var el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = '<div class="banner banner-' + type + '">' + message + '</div>';
+        setTimeout(function() {
+          // Chỉ tự ẩn success
+          if (type === 'success') el.innerHTML = '';
+        }, 5000);
+      }
+
+      // Check session on load
+      window.onload = function() {
+        var saved = sessionStorage.getItem('admin_pass');
+        if (saved) {
+          document.getElementById('adminPass').value = saved;
+          doLogin(saved);
+        }
+      };
+
+      function handleLogin(e) {
+        e.preventDefault();
+        var pass = document.getElementById('adminPass').value.trim();
+        doLogin(pass);
+      }
+
+      function doLogin(pass) {
+        var btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang kiểm tra...';
+        document.getElementById('loginMsg').innerHTML = '';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = 'Đăng nhập';
+            if (res.success) {
+              adminToken = pass;
+              sessionStorage.setItem('admin_pass', pass);
+              document.getElementById('loginView').classList.add('hidden');
+              document.getElementById('adminDashboard').classList.remove('hidden');
+              loadOverview();
+            } else {
+              showBanner('loginMsg', 'error', res.message || 'Mật khẩu không đúng!');
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Đăng nhập';
+            showBanner('loginMsg', 'error', 'Lỗi kết nối: ' + (err.message || err));
+          })
+          .verifyAdminPassword(pass);
+      }
+
+      function handleLogout() {
+        adminToken = '';
+        sessionStorage.removeItem('admin_pass');
+        document.getElementById('adminDashboard').classList.add('hidden');
+        document.getElementById('loginView').classList.remove('hidden');
+        document.getElementById('adminPass').value = '';
+      }
+
+      function switchTab(tabId) {
+        var tabs = ['submissionsTab', 'configTab', 'toolsTab'];
+        tabs.forEach(function(t) {
+          var el = document.getElementById(t);
+          if (el) el.classList.add('hidden');
+        });
+        document.getElementById(tabId).classList.remove('hidden');
+
+        var btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        event.currentTarget.classList.add('active');
+      }
+
+      // Load Tổng quan & Danh sách tuần
+      function loadOverview() {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (!res.success) {
+              showBanner('globalMsg', 'error', res.message);
+              return;
+            }
+            currentOverview = res;
+
+            // Cập nhật links Sheet & Drive
+            document.getElementById('sheetLink').href = res.spreadsheetUrl;
+            document.getElementById('driveLink').href = res.driveFolderUrl;
+            document.getElementById('navTitle').textContent = res.config.tenTruong || 'Bảng Quản Trị';
+
+            // Điền tab Cấu hình
+            document.getElementById('cfgSchool').value = res.config.tenTruong || '';
+            document.getElementById('cfgTitle').value = res.config.tieuDe || '';
+            document.getElementById('cfgNote').value = res.config.ghiChu || '';
+            document.getElementById('cfgSubfolder').checked = !!res.config.subfolderByClass;
+
+            renderWeeksConfig(res.config.weeks || []);
+
+            // Render Thống kê tuần
+            renderStatsCards(res.weekStats || []);
+
+            // Chọn tuần đầu tiên mặc định
+            if (res.weekStats && res.weekStats.length > 0) {
+              var targetWeek = currentSelectedWeek || res.weekStats[0].name;
+              selectWeek(targetWeek);
+            }
+          })
+          .withFailureHandler(function(err) {
+            showBanner('globalMsg', 'error', 'Không nạp được tổng quan: ' + err.toString());
+          })
+          .getAdminOverview(adminToken);
+      }
+
+      function renderStatsCards(stats) {
+        var container = document.getElementById('statsContainer');
+        container.innerHTML = '';
+
+        stats.forEach(function(item) {
+          var card = document.createElement('div');
+          card.className = 'card-stat' + (item.name === currentSelectedWeek ? ' selected' : '');
+          card.id = 'statCard_' + item.name.replace(/\s+/g, '_');
+          card.onclick = function() { selectWeek(item.name); };
+          card.innerHTML =
+            '<div class="title">' + item.name + '</div>' +
+            '<div class="count">' + item.count + ' <small>bài nộp</small></div>';
+          container.appendChild(card);
+        });
+      }
+
+      function selectWeek(weekName) {
+        currentSelectedWeek = weekName;
+        document.querySelectorAll('.card-stat').forEach(function(c) { c.classList.remove('selected'); });
+        var activeCard = document.getElementById('statCard_' + weekName.replace(/\s+/g, '_'));
+        if (activeCard) activeCard.classList.add('selected');
+
+        document.getElementById('submissionPanelTitle').textContent = 'Danh sách bài nộp: ' + weekName;
+        document.getElementById('currentWeekTitle').textContent = weekName;
+
+        loadSubmissions(weekName);
+      }
+
+      function loadSubmissions(weekName) {
+        if (!weekName) return;
+        document.getElementById('submissionsLoading').classList.remove('hidden');
+        document.getElementById('submissionsTableWrapper').classList.add('hidden');
+        document.getElementById('classStatsPanel').classList.add('hidden');
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            document.getElementById('submissionsLoading').classList.add('hidden');
+            document.getElementById('submissionsTableWrapper').classList.remove('hidden');
+
+            if (!res.success) {
+              showBanner('globalMsg', 'error', res.message);
+              return;
+            }
+
+            rawSubmissions = res.submissions || [];
+            document.getElementById('submissionCountBadge').textContent = rawSubmissions.length + ' bài';
+
+            // Hiển thị thống kê theo lớp
+            renderClassStats(res.stats.classStats || {});
+
+            renderSubmissionsTable(rawSubmissions);
+          })
+          .withFailureHandler(function(err) {
+            document.getElementById('submissionsLoading').classList.add('hidden');
+            showBanner('globalMsg', 'error', 'Lỗi tải bài nộp: ' + err.toString());
+          })
+          .getAdminSubmissions(adminToken, weekName);
+      }
+
+      function renderClassStats(classStats) {
+        var badgeList = document.getElementById('classBadgeList');
+        badgeList.innerHTML = '';
+        var classes = Object.keys(classStats);
+        if (classes.length === 0) {
+          document.getElementById('classStatsPanel').classList.add('hidden');
+          return;
+        }
+
+        classes.sort();
+        classes.forEach(function(cls) {
+          var badge = document.createElement('span');
+          badge.className = 'badge-class';
+          badge.style.cursor = 'pointer';
+          badge.title = 'Nhấn để lọc riêng lớp ' + cls;
+          badge.textContent = cls + ': ' + classStats[cls] + ' bài';
+          badge.onclick = function() {
+            document.getElementById('searchInput').value = cls;
+            filterSubmissionsTable();
+          };
+          badgeList.appendChild(badge);
+        });
+        document.getElementById('classStatsPanel').classList.remove('hidden');
+      }
+
+      function renderSubmissionsTable(list) {
+        var tbody = document.getElementById('submissionsTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">Chưa có bài nộp nào trong tuần này.</td></tr>';
+          return;
+        }
+
+        list.forEach(function(sub, idx) {
+          var tr = document.createElement('tr');
+          var linkBtn = sub.fileUrl
+            ? '<button onclick="openImagePreview(\'' + sub.fileUrl + '\', \'' + sub.fullName + ' - ' + sub.className + (sub.stt ? ' (STT: ' + sub.stt + ')' : '') + '\')" class="btn btn-outline btn-sm">Xem ảnh</button>'
+            : '<span style="color: var(--muted);">Không có link</span>';
+
+          var sttDisplay = (sub.stt !== undefined && sub.stt !== null && sub.stt !== '')
+            ? ('<span class="badge-class" style="background: rgba(28,37,65,0.08); color: var(--ink); font-weight: 700;">' + sub.stt + '</span>')
+            : ('<span style="color: var(--muted);">' + (idx + 1) + '</span>');
+
+          tr.innerHTML =
+            '<td style="text-align: center;">' + sttDisplay + '</td>' +
+            '<td style="font-weight: 600;">' + sub.fullName + '</td>' +
+            '<td><span class="badge-class">' + sub.className + '</span></td>' +
+            '<td style="white-space: nowrap; color: var(--ink-soft); font-size: 12.5px;">' + sub.timestamp + '</td>' +
+            '<td>' + linkBtn + '</td>' +
+            '<td style="text-align: center;">' +
+              '<button onclick="confirmDeleteSubmission(' + sub.rowIndex + ', \'' + sub.fullName + '\')" class="btn btn-danger btn-sm" title="Xóa bài nộp này khỏi Google Sheet">' +
+                '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filterSubmissionsTable() {
+        var query = document.getElementById('searchInput').value.toLowerCase().trim();
+        if (!query) {
+          renderSubmissionsTable(rawSubmissions);
+          return;
+        }
+        var filtered = rawSubmissions.filter(function(s) {
+          return (s.fullName || '').toLowerCase().indexOf(query) >= 0 ||
+                 (s.className || '').toLowerCase().indexOf(query) >= 0 ||
+                 (s.stt !== undefined && s.stt !== null ? s.stt.toString() : '').indexOf(query) >= 0 ||
+                 (s.timestamp || '').toLowerCase().indexOf(query) >= 0;
+        });
+        renderSubmissionsTable(filtered);
+      }
+
+      function confirmDeleteSubmission(rowIndex, name) {
+        if (!confirm('Bạn có chắc muốn xóa bài nộp của "' + name + '" khỏi Google Sheet? Thao tác này sẽ xóa hàng trên Sheet.')) {
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              loadSubmissions(currentSelectedWeek);
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            showBanner('globalMsg', 'error', 'Lỗi xóa bài: ' + err.toString());
+          })
+          .adminDeleteSubmission(adminToken, currentSelectedWeek, rowIndex);
+      }
+
+      // ================= CẤU HÌNH TUẦN =================
+      function renderWeeksConfig(weeks) {
+        var container = document.getElementById('weeksContainer');
+        container.innerHTML = '';
+        weeks.forEach(function(w) { addWeekRow(w); });
+      }
+
+      function addWeekRow(val) {
+        var container = document.getElementById('weeksContainer');
+        var row = document.createElement('div');
+        row.className = 'week-item';
+        row.innerHTML =
+          '<input type="text" class="input-text week-name-input" value="' + (val || '') + '" placeholder="VD: Tuần ' + (container.children.length + 1) + '" style="width: 250px;">' +
+          '<button type="button" onclick="this.parentElement.remove()" class="btn btn-outline btn-sm" style="color: var(--error);" title="Xóa tuần này">&times;</button>';
+        container.appendChild(row);
+      }
+
+      function saveConfig() {
+        var btn = document.getElementById('saveConfigBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang lưu...';
+
+        var weeks = [];
+        document.querySelectorAll('.week-name-input').forEach(function(inp) {
+          var v = inp.value.trim();
+          if (v) weeks.push(v);
+        });
+
+        var newCfg = {
+          tenTruong: document.getElementById('cfgSchool').value.trim(),
+          tieuDe: document.getElementById('cfgTitle').value.trim(),
+          ghiChu: document.getElementById('cfgNote').value.trim(),
+          subfolderByClass: document.getElementById('cfgSubfolder').checked,
+          weeks: weeks
+        };
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu cấu hình';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              loadOverview();
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Lưu cấu hình';
+            showBanner('globalMsg', 'error', 'Lỗi lưu: ' + err.toString());
+          })
+          .adminUpdateConfig(adminToken, newCfg);
+      }
+
+      // ================= ĐỔI MẬT KHẨU =================
+      function handleChangePassword(e) {
+        e.preventDefault();
+        var curr = document.getElementById('currPass').value.trim();
+        var newP = document.getElementById('newPass').value.trim();
+        var conf = document.getElementById('confirmPass').value.trim();
+
+        if (newP !== conf) {
+          alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+          return;
+        }
+
+        var btn = document.getElementById('changePassBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang đổi...';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = 'Cập nhật mật khẩu';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              adminToken = newP;
+              sessionStorage.setItem('admin_pass', newP);
+              document.getElementById('currPass').value = '';
+              document.getElementById('newPass').value = '';
+              document.getElementById('confirmPass').value = '';
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Cập nhật mật khẩu';
+            showBanner('globalMsg', 'error', 'Lỗi: ' + err.toString());
+          })
+          .adminChangePassword(curr, newP);
+      }
+
+      // ================= BẢO TRÌ BẢNG =================
+      function formatAllSheets() {
+        if (!confirm('Bạn có muốn định dạng lại tất cả các tab Tuần trong Google Sheet?')) return;
+        var btn = document.getElementById('formatSheetsBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang định dạng...';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Định dạng lại tất cả tab trong Sheet';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Định dạng lại tất cả tab trong Sheet';
+            showBanner('globalMsg', 'error', 'Lỗi: ' + err.toString());
+          })
+          .adminFormatAllSheets(adminToken);
+      }
+
+      // ================= MODAL XEM ẢNH =================
+      function openImagePreview(url, title) {
+        document.getElementById('imageModalTitle').textContent = title || 'Xem minh chứng';
+        document.getElementById('modalImg').src = url;
+        document.getElementById('modalDirectLink').href = url;
+        document.getElementById('imageModal').classList.remove('hidden');
+      }
+
+      function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+        document.getElementById('modalImg').src = '';
+      }
+    </script>
+  </body>
+</html>

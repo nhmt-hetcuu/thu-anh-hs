@@ -4,12 +4,21 @@
 <br> **Demo:** - https://claude.ai/artifact/3tjcnSJCST32pkgez8Jmzy
 ## Tính năng
 
-- Form nộp ảnh/video đơn giản, tối ưu cho điện thoại.
+- Form nộp ảnh/video đơn giản, tối ưu cho điện thoại: nhập Họ tên, Lớp, **Số thứ tự (STT)** và chọn Tuần.
+- **Tự động sắp xếp (sort) theo thứ tự từ trên xuống dưới**: Dữ liệu ghi vào Google Sheet và hiển thị trên trang Admin luôn tự động sort theo STT tăng dần (1, 2, 3, 4...) và theo Lớp.
+- **Trang Quản trị (Admin Portal)** tiện lợi:
+  - Xem thống kê tổng số bài nộp và phân loại chi tiết theo từng Lớp/Tuần.
+  - Xem danh sách bài nộp sắp xếp chuẩn theo STT, mở ảnh trực tiếp ngay trên web hoặc trên Drive.
+  - Tìm kiếm bài nộp nhanh theo họ tên, lớp, STT, thời gian.
+  - Xóa bài nộp nộp nhầm hoặc không hợp lệ trực tiếp khỏi Google Sheet.
+  - Cập nhật thông tin phong trào, tên trường, danh sách tuần trực tiếp trên web mà không cần mở Sheet.
+  - Nút định dạng và trang trí lại các tab trong Google Sheet 1-click.
+  - Bảo mật bằng mật khẩu quản trị (có thể đổi mật khẩu bất kỳ lúc nào).
 - **Nén ảnh ngay trên trình duyệt** trước khi gửi (giảm dung lượng, gửi nhanh hơn) — video gửi nguyên bản.
-- Tự động đặt tên file theo dạng `Lớp_HọTên_Tuần_ThờiGian.đuôifile`, không lo trùng tên.
+- Tự động đặt tên file theo dạng `Lớp_STTxx_HọTên_Tuần_ThờiGian.đuôifile`, file trên Drive tự động xếp thứ tự ngăn nắp.
 - Tự động tạo thư mục trên Drive theo từng **Tuần hoạt động**, có thể bật thêm thư mục con theo **Lớp**.
 - Mỗi tuần tự động có 1 tab riêng trong Google Sheet, định dạng sẵn: header màu, cố định dòng tiêu đề, kẻ sọc xen kẽ, cột **Link ảnh** bấm mở trực tiếp.
-- Toàn bộ nội dung hiển thị (tên trường, tên phong trào, ghi chú, danh sách Tuần) **lấy động từ 1 tab "Config"** trong Sheet — sửa nội dung ngay trong Sheet, không cần sửa code hay deploy lại.
+- Toàn bộ nội dung hiển thị (tên trường, tên phong trào, ghi chú, danh sách Tuần) **lấy động từ 1 tab "Config"** trong Sheet — sửa nội dung ngay trong Sheet hoặc qua trang Admin, không cần sửa code hay deploy lại.
 - Chống ghi đè khi nhiều người gửi cùng lúc (`LockService`).
 - Báo lỗi chi tiết theo từng bước (mở Drive / tạo thư mục / tạo file / ghi Sheet) để dễ debug.
 
@@ -18,7 +27,8 @@
 ```
 .
 ├── Code.gs      # Toàn bộ logic phía server (Apps Script)
-└── Index.html   # Giao diện form phía học sinh
+├── Index.html   # Giao diện form nộp bài phía học sinh
+└── Admin.html   # Giao diện trang quản trị dành cho giáo viên / phụ trách Đoàn
 ```
 
 ## Cài đặt
@@ -32,7 +42,9 @@
 
 1. Vào [script.google.com](https://script.google.com) → **New project**.
 2. Xoá nội dung mặc định của file `Code.gs`, dán toàn bộ nội dung file `Code.gs` trong repo này vào.
-3. Tạo thêm 1 file HTML: **File → New → HTML**, đặt tên chính xác là `Index` → dán nội dung file `Index.html` vào.
+3. Tạo thêm 2 file HTML: **File → New → HTML**:
+   - File thứ nhất đặt tên là `Index` → dán nội dung file `Index.html` vào.
+   - File thứ hai đặt tên là `Admin` → dán nội dung file `Admin.html` vào.
 4. Trong `Code.gs`, sửa 2 dòng sau theo ID thực tế của bạn:
    ```js
    var SPREADSHEET_ID = 'DÁN_ID_SHEET_CỦA_BẠN';
@@ -47,25 +59,37 @@
    |---|---|
    | Execute as | **Me** (chủ sở hữu script) |
    | Who has access | **Anyone** *(không chọn "Anyone within [tổ chức]")* |
-3. Bấm **Deploy**, copy link `.../exec` — đây là link gửi cho học sinh.
+3. Bấm **Deploy**, copy link `.../exec`:
+   - **Link cho học sinh**: `https://script.google.com/.../exec` (hoặc bấm biểu tượng Quản trị viên ở chân trang để vào trang quản trị).
+   - **Link vào thẳng trang Admin**: `https://script.google.com/.../exec?page=admin` (Mật khẩu mặc định: `admin123`).
 
 > Nếu dùng tài khoản Google Workspace (email trường/tổ chức), Apps Script hay tự gợi ý "Anyone within [tổ chức]" trông rất giống "Anyone" — để ý kỹ, chọn nhầm sẽ khiến tài khoản Gmail cá nhân không mở được form.
 
 ### 4. Khởi tạo tab Config (tuỳ chọn)
 
-Tab `Config` sẽ tự được tạo với giá trị mặc định ngay lần đầu có người mở form. Muốn tạo sẵn ngay (không cần đợi ai mở form):
+Tab `Config` sẽ tự được tạo với giá trị mặc định ngay lần đầu có người mở form hoặc trang admin. Muốn tạo sẵn ngay (không cần đợi ai mở form):
 
 - Mở Apps Script editor → chọn hàm `taoConfigMacDinh` ở thanh **Run** → bấm **Run**.
 
+## Sử dụng Trang Quản Trị (Admin)
+
+Truy cập đường dẫn: `.../exec?page=admin` (hoặc nhấn link **Quản trị viên** ở cuối form học sinh).
+
+- **Mật khẩu mặc định:** `admin123`.
+- **Thống kê & Danh sách bài nộp:** Bấm vào từng Tuần để xem số lượng bài nộp, biểu đồ số bài từng lớp, danh sách chi tiết (xem ảnh ngay trên trang, xem trên Drive, tìm kiếm học sinh/lớp, xóa bài nộp).
+- **Cấu hình phong trào:** Thay đổi Tên trường, Tên phong trào, Ghi chú, Bật/tắt thư mục con theo Lớp, Thêm/Xóa/Sửa danh sách các Tuần hoạt động.
+- **Mật khẩu & Công cụ:** Đổi mật khẩu đăng nhập trang Quản trị, định dạng lại bảng tính Sheet 1-click.
+
 ## Tuỳ chỉnh qua Google Sheet (tab "Config")
 
-Không cần sửa code — mở Sheet, vào tab **Config**:
+Bạn có thể chỉnh sửa qua trang Admin hoặc sửa trực tiếp trong Sheet (tab **Config**):
 
 | Ô | Ý nghĩa |
 |---|---|
 | `B2` | Tên trường |
 | `B3` | Tên phong trào / tiêu đề (dùng Alt+Enter để xuống dòng) |
 | `B4` | Ghi chú nhỏ (ví dụ: "Năm học 2026-2027") |
+| `B5` | Mật khẩu trang Admin (mặc định: `admin123`) |
 | `A7` trở xuống | Danh sách **Tuần hoạt động** — mỗi dòng 1 lựa chọn, thêm/xoá/sửa tuỳ ý |
 | `D1` | `TRUE`/`FALSE` — có tạo thêm thư mục con theo **Lớp** bên trong mỗi Tuần hay không |
 
@@ -77,14 +101,14 @@ Sửa xong lưu lại, **không cần deploy lại** — form tự đọc giá t
 ```
 Thư mục gốc/
 ├── Tuần 1/
-│   ├── 12A3_NguyenVanA_Tuan1_20260930_143015.jpg
+│   ├── 12A3_STT01_NguyenVanA_Tuan1_20260930_143015.jpg
 │   └── 12A3/                      ← chỉ có nếu D1 = TRUE
 │       └── ...
 └── Tuần 2/
     └── ...
 ```
 
-**Google Sheet:** mỗi Tuần có 1 tab riêng, 4 cột: `Thời gian | Họ và tên | Lớp | Link ảnh`.
+**Google Sheet:** mỗi Tuần có 1 tab riêng, 5 cột: `STT | Họ và tên | Lớp | Thời gian | Link ảnh` (tự động sắp xếp theo Lớp và theo STT từ trên xuống dưới).
 
 ## Bảo trì
 
