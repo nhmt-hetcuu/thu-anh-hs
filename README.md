@@ -5,9 +5,9 @@
 ## 📸 Hình ảnh giao diện (Demo Screenshots)
 
 ### 1. Phía Học sinh & Công khai
-| Form nộp bài học sinh (nhập STT, họ tên, lớp) | Modal theo dõi tiến độ các lớp & Copy Zalo |
-| :---: | :---: |
-| ![Form nộp bài học sinh](docs/demo-student-form.png) | ![Tiến độ thực hiện các lớp](docs/demo-student-progress.png) |
+| Form nộp bài & Bắt buộc đọc nội quy | Modal Nội quy & Cam kết tuân thủ | Tiến độ các lớp & Copy Zalo |
+| :---: | :---: | :---: |
+| ![Form nộp bài học sinh](docs/demo-student-form.png) | ![Nội quy nộp minh chứng](docs/demo-rules-modal.png) | ![Tiến độ thực hiện các lớp](docs/demo-student-progress.png) |
 
 ### 2. Phía Quản trị viên (Admin Portal)
 | Dashboard tiến độ phong trào & Chỉ tiêu | Quản lý Sĩ số & Số đoàn viên từng lớp |
@@ -19,6 +19,20 @@
 | ![Cấu hình phong trào](docs/demo-admin-config.png) |
 
 ## Tính năng
+
+- **Cơ chế Chống gửi trùng & Giới hạn tối đa 3 lần nộp bài**:
+  - Mỗi học sinh (nhận diện chính xác theo **Lớp + Số thứ tự (STT)** hoặc **Họ và tên**) chỉ được phép nộp ảnh minh chứng tối đa **3 lần** cho mỗi hoạt động/phong trào.
+  - Khi học sinh cố gắng gửi bài lần thứ 4, hệ thống sẽ tự động chặn và từ chối xử lý, kèm thông báo giải thích rõ ràng.
+  - **Kiểm tra trạng thái tự động thời gian thực (Real-time Async Check)**: Ngay khi học sinh nhập xong STT, Họ tên, chọn Lớp và Hoạt động, hệ thống lập tức kiểm tra và hiển thị thẻ thông báo học sinh đã nộp mấy lần (1/3, 2/3, 3/3), kèm hướng dẫn cụ thể.
+- **Tự động Dọn dẹp & Xóa file cũ trên Google Drive**:
+  - Khi học sinh nộp lại minh chứng (lần 2 hoặc lần 3), hệ thống sẽ **tự động tìm và chuyển file ảnh cũ trước đó vào thùng rác (`setTrashed(true)`)**, chỉ giữ lại duy nhất 1 file nộp mới nhất trên Google Drive.
+  - Ngăn ngừa hoàn toàn nguy cơ đầy dung lượng bộ nhớ Google Drive của trường do học sinh nộp đi nộp lại nhiều lần.
+  - Ghi nhận và cập nhật trực tiếp tại chỗ (in-place row update) trên cả sheet phong trào và sheet tổng hợp `DanhSachHocSinh`, tăng bộ đếm **Lần nộp**, không sinh dòng rác và bảo toàn thứ tự sắp xếp STT.
+- **Quy trình Bắt buộc Đọc & Cam kết Nội quy (Consent-gated UI)**:
+  - Tích hợp khối **Nội quy nộp ảnh minh chứng** ngay phía trên nút gửi.
+  - Hộp kiểm (checkbox) cam kết bị khóa (disabled) mặc định nhằm ngăn chặn việc học sinh bấm bừa mà không đọc.
+  - Học sinh bấm **"Đọc nội quy (Bắt buộc)"** để mở modal chi tiết 5 quy định trọng yếu (độ rõ nét của ảnh, minh chứng chính chủ, giới hạn 3 lần nộp & tự động xóa file cũ, hình thức xử lý vi phạm).
+  - Chỉ sau khi bấm nút **"Tôi đã đọc & Cam kết tuân thủ"**, checkbox mới tự động đánh dấu và mở khóa nút **"Gửi ảnh ngay"**.
 
 - **Kiến trúc Tách biệt 2 Google Spreadsheet Độc Lập (`STUDENT_SPREADSHEET_ID` & `ADMIN_SPREADSHEET_ID`)**:
   - **1. File Google Sheet Học sinh (`STUDENT_SPREADSHEET_ID`)**:
@@ -132,16 +146,17 @@ Bạn có thể chỉnh sửa qua trang Admin hoặc sửa trực tiếp trong 2
 **1. Sheet chính `DanhSachHocSinh` (Đặt ở vị trí tab đầu tiên):**
 Bảng tổng hợp toàn bộ bài nộp học sinh của trường qua tất cả các phong trào:
 - Cột A: `STT` (Được đánh số tăng dần liên tục 1, 2, 3...)
-- Cột B: `Họ và tên`
-- Cột C: `Lớp`
-- Cột D: `STT Lớp` (Số thứ tự của học sinh trong lớp)
-- Cột E: `Hoạt động` (Tên phong trào tham gia)
-- Cột F: `Thời gian` (Thời điểm học sinh nộp bài)
-- Cột G: `Link ảnh / Minh chứng` (Link Google Drive mở trực tiếp)
+- Cột B: `Lớp`
+- Cột C: `STT Lớp` (Số thứ tự của học sinh trong lớp)
+- Cột D: `Họ và tên`
+- Cột E: `Hoạt động / Phong trào` (Tên phong trào tham gia)
+- Cột F: `Thời gian nộp` (Thời điểm học sinh nộp bài)
+- Cột G: `Link ảnh minh chứng` (Link Google Drive mở trực tiếp)
+- Cột H: `Lần nộp` (Bộ đếm số lần nộp bài: Lần 1/3, Lần 2/3, Lần 3/3)
 *(Dữ liệu luôn được tự động sắp xếp theo Lớp rồi theo STT Lớp tăng dần để phục vụ tra cứu, in ấn).*
 
 **2. Các tab Hoạt động theo phong trào:**
-Mỗi phong trào có 1 tab riêng biệt (VD: `Tuan 1`, `Nu cuoi Viet Nam`...) gồm 5 cột: `STT | Họ và tên | Lớp | Thời gian | Link ảnh`. Tự động kẻ bảng và sắp xếp từ trên xuống dưới theo STT và Lớp.
+Mỗi phong trào có 1 tab riêng biệt (VD: `Tuan 1`, `Nu cuoi Viet Nam`...) gồm 6 cột: `STT | Họ và tên | Lớp | Thời gian | Link ảnh | Lần nộp`. Tự động kẻ bảng, hiển thị số lần nộp của học sinh và sắp xếp từ trên xuống dưới theo STT và Lớp.
 
 ---
 

@@ -195,8 +195,28 @@ function createRunner() {
               overallPercentage: 71
             },
             classProgress: ${JSON.stringify(mockData.adminClassProgress)},
-            submissions: [],
-            stats: { totalSubmissions: 201, classStats: {} }
+            submissions: [
+              { rowIndex: 2, stt: 1, fullName: 'Nguyễn Văn An', className: '12A1', timestamp: '02/03/2025 08:30:15', fileUrl: 'https://drive.google.com/sample1', submitCount: 1 },
+              { rowIndex: 3, stt: 2, fullName: 'Trần Thị Bích', className: '12A1', timestamp: '02/03/2025 09:12:44', fileUrl: 'https://drive.google.com/sample2', submitCount: 2 },
+              { rowIndex: 4, stt: 3, fullName: 'Lê Hoàng Nam', className: '12A1', timestamp: '03/03/2025 14:05:22', fileUrl: 'https://drive.google.com/sample3', submitCount: 3 },
+              { rowIndex: 5, stt: 4, fullName: 'Phạm Minh Khang', className: '12A2', timestamp: '03/03/2025 15:20:10', fileUrl: 'https://drive.google.com/sample4', submitCount: 1 },
+              { rowIndex: 6, stt: 5, fullName: 'Đặng Thảo Vy', className: '12A2', timestamp: '04/03/2025 10:15:33', fileUrl: 'https://drive.google.com/sample5', submitCount: 2 }
+            ],
+            stats: { totalSubmissions: 5, classStats: { '12A1': 3, '12A2': 2 } }
+          });
+        }, 5);
+      },
+      checkStudentSubmissionStatus: function(fullName, className, stt, week) {
+        var self = this;
+        setTimeout(function() {
+          self._success({
+            exists: true,
+            count: 1,
+            maxCount: 3,
+            canSubmit: true,
+            lastFileUrl: 'https://drive.google.com/sample',
+            lastTimestamp: '02/03/2025 08:30:15',
+            message: 'Học sinh Nguyễn Văn An đã nộp 1/3 lần. Bạn vẫn có thể nộp lại (file mới sẽ thay thế file cũ).'
           });
         }, 5);
       },
@@ -231,14 +251,17 @@ pageForm += `
 window.addEventListener('load', function() {
   setTimeout(function() {
     document.getElementById('fullName').value = 'Nguyễn Văn An';
-    document.getElementById('className').value = '12A3';
-    document.getElementById('sttNumber').value = '15';
+    document.getElementById('className').value = '12A1';
+    document.getElementById('sttNumber').value = '1';
     var sel = document.getElementById('weekSelect');
     if (sel && sel.options.length > 1) {
       sel.selectedIndex = 1;
       sel.dispatchEvent(new Event('change'));
     }
-  }, 80);
+    if (typeof checkStudentSubmissionStatusAsync === 'function') {
+      checkStudentSubmissionStatusAsync();
+    }
+  }, 120);
 });
 </script>
 `;
@@ -251,6 +274,20 @@ window.addEventListener('load', function() {
   setTimeout(function() {
     if (typeof openProgressModal === 'function') {
       openProgressModal();
+    }
+  }, 100);
+});
+</script>
+`;
+
+// 2b. Modal Nội quy nộp minh chứng
+let pageRules = prepareHtml(indexHtmlRaw);
+pageRules += `
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    if (typeof openRulesModal === 'function') {
+      openRulesModal();
     }
   }, 100);
 });
@@ -323,6 +360,13 @@ const items = [
     htmlFile: 'temp-student-progress.html',
     content: pageProgress,
     outputImg: 'demo-student-progress.png',
+    width: 1240,
+    height: 980
+  },
+  {
+    htmlFile: 'temp-rules-modal.html',
+    content: pageRules,
+    outputImg: 'demo-rules-modal.png',
     width: 1240,
     height: 980
   },
