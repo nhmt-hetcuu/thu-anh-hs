@@ -80,7 +80,8 @@
 
       /* ================= APP LAYOUT ================= */
       .app-wrapper {
-        max-width: 1100px;
+        max-width: 1380px;
+        width: 96%;
         margin: 0 auto;
       }
 
@@ -164,18 +165,23 @@
       /* ================= TABS ================= */
       .tabs {
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 20px;
         border-bottom: 1px solid var(--line);
         padding-bottom: 12px;
-        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .tabs::-webkit-scrollbar {
+        display: none;
       }
 
       .tab-btn {
         background: transparent;
         border: none;
-        padding: 8px 16px;
-        font-size: 14px;
+        padding: 8px 13px;
+        font-size: 13.5px;
         font-weight: 600;
         color: var(--ink-soft);
         border-radius: 8px;
@@ -964,6 +970,102 @@
         </div>
       </div>
 
+      <!-- ================= TAB: BÁO CÁO KHÔNG THỰC HIỆN ================= -->
+      <div id="nonCompletionTab" class="hidden">
+        <!-- Filter Toolbar -->
+        <div class="panel" style="padding: 16px 20px; margin-bottom: 18px;">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="nonCompWeekSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Phong trào:</label>
+                <select id="nonCompWeekSelect" class="input-text" onchange="loadNonCompletionReports()" style="min-width: 220px; font-weight: 600;">
+                  <option value="ALL">-- Tất cả hoạt động --</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="nonCompClassSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Lớp:</label>
+                <select id="nonCompClassSelect" class="input-text" onchange="filterNonCompletionLocal()" style="min-width: 130px;">
+                  <option value="ALL">-- Tất cả lớp --</option>
+                </select>
+              </div>
+
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="text" id="nonCompSearchInput" class="input-text" placeholder="Tìm họ tên, STT, lý do..." oninput="filterNonCompletionLocal()" style="min-width: 200px;">
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button onclick="loadNonCompletionReports()" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Làm mới
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="nonCompBanner"></div>
+
+        <!-- Metric KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px;">
+          <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-left: 4px solid #DC2626;">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: #FEF2F2; display: flex; align-items: center; justify-content: center; color: #DC2626;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <div style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Tổng số báo không thực hiện</div>
+              <div id="nonCompTotalKpi" style="font-size: 22px; font-weight: 800; color: #991B1B;">0</div>
+            </div>
+          </div>
+
+          <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--gold);">
+            <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(184, 137, 43, 0.1); display: flex; align-items: center; justify-content: center; color: var(--gold);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Số lớp có học sinh báo</div>
+              <div id="nonCompClassesKpi" style="font-size: 22px; font-weight: 800; color: var(--navy);">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Non-completion Table -->
+        <div class="panel">
+          <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Danh sách học sinh báo không thực hiện</span>
+            </div>
+            <span id="nonCompTableCount" style="font-size: 13px; color: var(--muted); font-weight: 600;">0 học sinh</span>
+          </div>
+
+          <div id="nonCompTableWrapper" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">STT</th>
+                  <th style="width: 140px;">Thời gian</th>
+                  <th style="width: 80px; text-align: center;">Lớp</th>
+                  <th style="width: 75px; text-align: center;">STT Lớp</th>
+                  <th style="width: 180px;">Họ và tên</th>
+                  <th style="width: 220px;">Hoạt động / Phong trào</th>
+                  <th>Lý do không thực hiện</th>
+                  <th style="width: 120px; text-align: center;">Ghi chú</th>
+                  <th style="width: 80px; text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="nonCompTableBody">
+                <tr>
+                  <td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">
+                    Chưa nạp dữ liệu. Vui lòng bấm vào tab này để xem báo cáo.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- ================= TAB 3: CLASS MANAGEMENT & HEADCOUNT ================= -->
       <div id="classesTab" class="hidden">
         <!-- School Demographic Overview Cards -->
@@ -1229,102 +1331,6 @@
       </div>
     </div>
 
-    <!-- ================= TAB: BÁO CÁO KHÔNG THỰC HIỆN ================= -->
-    <div id="nonCompletionTab" class="hidden">
-      <!-- Filter Toolbar -->
-      <div class="panel" style="padding: 16px 20px; margin-bottom: 18px;">
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
-          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <label for="nonCompWeekSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Phong trào:</label>
-              <select id="nonCompWeekSelect" class="input-text" onchange="loadNonCompletionReports()" style="min-width: 220px; font-weight: 600;">
-                <option value="ALL">-- Tất cả hoạt động --</option>
-              </select>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <label for="nonCompClassSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Lớp:</label>
-              <select id="nonCompClassSelect" class="input-text" onchange="filterNonCompletionLocal()" style="min-width: 130px;">
-                <option value="ALL">-- Tất cả lớp --</option>
-              </select>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <input type="text" id="nonCompSearchInput" class="input-text" placeholder="Tìm họ tên, STT, lý do..." oninput="filterNonCompletionLocal()" style="min-width: 200px;">
-            </div>
-          </div>
-
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="loadNonCompletionReports()" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Làm mới
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div id="nonCompBanner"></div>
-
-      <!-- Metric KPI Cards -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px;">
-        <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-left: 4px solid #DC2626;">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: #FEF2F2; display: flex; align-items: center; justify-content: center; color: #DC2626;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <div>
-            <div style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Tổng số báo không thực hiện</div>
-            <div id="nonCompTotalKpi" style="font-size: 22px; font-weight: 800; color: #991B1B;">0</div>
-          </div>
-        </div>
-
-        <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--gold);">
-          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(184, 137, 43, 0.1); display: flex; align-items: center; justify-content: center; color: var(--gold);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-          </div>
-          <div>
-            <div style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Số lớp có học sinh báo</div>
-            <div id="nonCompClassesKpi" style="font-size: 22px; font-weight: 800; color: var(--navy);">0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Non-completion Table -->
-      <div class="panel">
-        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
-          <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>Danh sách học sinh báo không thực hiện</span>
-          </div>
-          <span id="nonCompTableCount" style="font-size: 13px; color: var(--muted); font-weight: 600;">0 học sinh</span>
-        </div>
-
-        <div id="nonCompTableWrapper" class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width: 50px; text-align: center;">STT</th>
-                <th style="width: 140px;">Thời gian</th>
-                <th style="width: 80px; text-align: center;">Lớp</th>
-                <th style="width: 75px; text-align: center;">STT Lớp</th>
-                <th style="width: 180px;">Họ và tên</th>
-                <th style="width: 220px;">Hoạt động / Phong trào</th>
-                <th>Lý do không thực hiện</th>
-                <th style="width: 120px; text-align: center;">Ghi chú</th>
-                <th style="width: 80px; text-align: center;">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody id="nonCompTableBody">
-              <tr>
-                <td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">
-                  Chưa nạp dữ liệu. Vui lòng bấm vào tab này để xem báo cáo.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
     <!-- ================= PHOTO PREVIEW MODAL ================= -->
     <div id="imageModal" class="modal-backdrop hidden" onclick="closeImageModal()">
       <div class="modal-content preview-image-modal" onclick="event.stopPropagation()">
@@ -1534,10 +1540,13 @@
         if (activeEl) activeEl.classList.remove('hidden');
 
         var btns = document.querySelectorAll('.tab-btn');
-        btns.forEach(function(b) { b.classList.remove('active'); });
-        if (event && event.currentTarget) {
-          event.currentTarget.classList.add('active');
-        }
+        btns.forEach(function(b) {
+          b.classList.remove('active');
+          var oc = b.getAttribute('onclick') || '';
+          if (oc.indexOf("'" + tabId + "'") !== -1 || oc.indexOf('"' + tabId + '"') !== -1) {
+            b.classList.add('active');
+          }
+        });
 
         if (tabId === 'progressTab') {
           if (currentSelectedWeek) loadProgressData(currentSelectedWeek);
@@ -2889,7 +2898,7 @@
             '<td style="text-align: center; font-weight: 600;">' + escapeHtml(r.classStt || '-') + '</td>' +
             '<td style="font-weight: 700; color: var(--ink);">' + escapeHtml(r.fullName || '') + '</td>' +
             '<td style="font-size: 13px; color: var(--navy); line-height: 1.35;">' + escapeHtml(r.activityName || '') + '</td>' +
-            '<td style="font-size: 13px; color: #991B1B; line-height: 1.4; background: #FFFBFB; border-left: 2px solid #FCA5A5; padding: 8px 10px;">' + escapeHtml(r.reason || '') + '</td>' +
+            '<td style="font-size: 13.5px; color: #991B1B; line-height: 1.4; font-weight: 500;">' + escapeHtml(r.reason || '') + '</td>' +
             '<td style="text-align: center;"><span class="badge" style="background: #FEF3C7; color: #92400E; font-size: 11.5px; padding: 2px 7px; border-radius: 4px;">' + escapeHtml(r.note || 'Chờ xác nhận') + '</span></td>' +
             '<td style="text-align: center;">' +
               '<button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteNonCompletionReport(' + r.rowIndex + ', \'' + escapeHtml((r.fullName || '')).replace(/'/g, "\\'") + '\')" title="Xóa báo cáo này khỏi Sheet">' +

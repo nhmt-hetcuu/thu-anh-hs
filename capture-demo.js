@@ -268,13 +268,11 @@ function createRunner() {
       },
       getAdminNonCompletionReports: function(pass, week, cls) {
         var self = this;
-        setTimeout(function() {
-          self._success({
-            success: true,
-            reports: mockData.nonCompletionReports,
-            totalCount: mockData.nonCompletionReports.length
-          });
-        }, 5);
+        self._success({
+          success: true,
+          reports: ${JSON.stringify(mockData.nonCompletionReports)},
+          totalCount: ${mockData.nonCompletionReports.length}
+        });
       },
       adminDeleteNonCompletionReport: function(pass, idx) {
         var self = this;
@@ -446,6 +444,8 @@ window.addEventListener('load', function() {
     loadOverview();
     setTimeout(function() {
       switchTab('nonCompletionTab');
+      var btn = document.getElementById('nonCompletionTabBtn');
+      if (btn) btn.classList.add('active');
     }, 80);
   }, 50);
 });
