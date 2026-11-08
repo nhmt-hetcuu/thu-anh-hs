@@ -291,6 +291,32 @@
         transform: translateY(-1px);
       }
 
+      .btn-noncomp-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 11px 14px;
+        margin-top: 10px;
+        background: #FFF5F5;
+        color: #991B1B;
+        border: 1.5px dashed #F87171;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-noncomp-action:hover {
+        background: #FEE2E2;
+        border-color: #DC2626;
+        color: #7F1D1D;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(185, 28, 28, 0.12);
+      }
+
       /* Thẻ chi tiết hoạt động tối ưu hiển thị tên dài & ngày bắt đầu - kết thúc */
       .activity-detail-card {
         margin-top: 10px;
@@ -955,6 +981,11 @@
           <span>Xem tiến trình thực hiện của các lớp</span>
         </button>
 
+        <button type="button" class="btn-noncomp-action" onclick="openNonCompletionModal()" title="Dành cho học sinh nghỉ ốm, hỏng thiết bị, hoặc có lý do không thể tham gia">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Báo không thực hiện được (Lý do nghỉ / Không thể tham gia)</span>
+        </button>
+
         <div id="message"></div>
 
         <div class="footer-admin">
@@ -1302,6 +1333,14 @@
               opt.title = wName;
               weekSelect.appendChild(opt);
 
+              var ncWeekSelect = document.getElementById('ncWeekSelect');
+              if (ncWeekSelect) {
+                var ncOpt = document.createElement('option');
+                ncOpt.value = wName;
+                ncOpt.textContent = shortDisplay + (wLabel ? ' (' + wLabel + ')' : '');
+                ncWeekSelect.appendChild(ncOpt);
+              }
+
               activityMap[wName] = {
                 stt: stt,
                 name: wName,
@@ -1320,6 +1359,10 @@
               var modalWeekSel = document.getElementById('modalWeekSelect');
               if (modalWeekSel && modalWeekSel.value !== this.value) {
                 modalWeekSel.value = this.value;
+              }
+              var ncWeekSel = document.getElementById('ncWeekSelect');
+              if (ncWeekSel && ncWeekSel.value !== this.value) {
+                ncWeekSel.value = this.value;
               }
             });
 
@@ -1569,8 +1612,16 @@
       }
 
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !document.getElementById('progressModal').classList.contains('hidden')) {
-          closeProgressModal();
+        if (e.key === 'Escape') {
+          if (!document.getElementById('progressModal').classList.contains('hidden')) {
+            closeProgressModal();
+          }
+          if (document.getElementById('rulesModal') && !document.getElementById('rulesModal').classList.contains('hidden')) {
+            closeRulesModal();
+          }
+          if (document.getElementById('nonCompletionModal') && !document.getElementById('nonCompletionModal').classList.contains('hidden')) {
+            closeNonCompletionModal();
+          }
         }
       });
 
@@ -1802,6 +1853,126 @@
         }
         document.body.removeChild(ta);
       }
+
+      // ============================================================
+      // MODAL BÁO LÝ DO KHÔNG THỰC HIỆN HOẠT ĐỘNG
+      // ============================================================
+
+      function openNonCompletionModal() {
+        var mainName = (document.getElementById('fullName').value || '').trim();
+        var mainClass = (document.getElementById('className').value || '').trim();
+        var mainStt = (document.getElementById('sttNumber').value || '').trim();
+        var mainWeek = (document.getElementById('weekSelect').value || '').trim();
+
+        if (mainName) document.getElementById('ncFullName').value = mainName;
+        if (mainClass) document.getElementById('ncClassName').value = mainClass;
+        if (mainStt) document.getElementById('ncStt').value = mainStt;
+
+        var ncWeek = document.getElementById('ncWeekSelect');
+        if (mainWeek && ncWeek && ncWeek.options.length > 0) {
+          ncWeek.value = mainWeek;
+        }
+
+        var alertEl = document.getElementById('nonCompModalAlert');
+        if (alertEl) {
+          alertEl.innerHTML = '';
+          alertEl.style.display = 'none';
+        }
+
+        document.getElementById('nonCompletionModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        setTimeout(function () {
+          if (mainName && mainClass) {
+            document.getElementById('ncReason').focus();
+          } else if (!mainName) {
+            document.getElementById('ncFullName').focus();
+          }
+        }, 80);
+      }
+
+      function closeNonCompletionModal() {
+        document.getElementById('nonCompletionModal').classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+
+      function handleNonCompBackdropClick(e) {
+        if (e.target && e.target.id === 'nonCompletionModal') {
+          closeNonCompletionModal();
+        }
+      }
+
+      function handleNonCompSubmit(e) {
+        if (e && e.preventDefault) e.preventDefault();
+
+        var fullName = (document.getElementById('ncFullName').value || '').trim();
+        var className = (document.getElementById('ncClassName').value || '').trim();
+        var stt = (document.getElementById('ncStt').value || '').trim();
+        var week = (document.getElementById('ncWeekSelect').value || '').trim();
+        var reason = (document.getElementById('ncReason').value || '').trim();
+
+        var alertEl = document.getElementById('nonCompModalAlert');
+        var btn = document.getElementById('ncSubmitBtn');
+        var btnText = document.getElementById('ncSubmitBtnText');
+
+        if (!fullName) {
+          alertEl.className = 'banner banner-error';
+          alertEl.innerHTML = ICONS.error + '<div>Vui lòng nhập họ và tên của bạn!</div>';
+          alertEl.style.display = 'flex';
+          return;
+        }
+        if (!className) {
+          alertEl.className = 'banner banner-error';
+          alertEl.innerHTML = ICONS.error + '<div>Vui lòng chọn hoặc nhập lớp của bạn!</div>';
+          alertEl.style.display = 'flex';
+          return;
+        }
+        if (!week) {
+          alertEl.className = 'banner banner-error';
+          alertEl.innerHTML = ICONS.error + '<div>Vui lòng chọn hoạt động cần báo cáo!</div>';
+          alertEl.style.display = 'flex';
+          return;
+        }
+        if (!reason || reason.length < 5) {
+          alertEl.className = 'banner banner-error';
+          alertEl.innerHTML = ICONS.error + '<div>Vui lòng nhập lý do cụ thể (tối thiểu 5 ký tự)!</div>';
+          alertEl.style.display = 'flex';
+          return;
+        }
+
+        btn.disabled = true;
+        btnText.textContent = 'Đang ghi nhận...';
+
+        google.script.run
+          .withSuccessHandler(function (res) {
+            btn.disabled = false;
+            btnText.textContent = 'Gửi báo cáo lý do';
+
+            if (res && res.success) {
+              alertEl.className = 'banner banner-success';
+              alertEl.innerHTML = ICONS.success + '<div><strong>Ghi nhận thành công!</strong> ' + res.message + '</div>';
+              alertEl.style.display = 'flex';
+              document.getElementById('ncReason').value = '';
+
+              showMessage('success', res.message);
+              setTimeout(function () {
+                closeNonCompletionModal();
+              }, 2200);
+            } else {
+              alertEl.className = 'banner banner-error';
+              alertEl.innerHTML = ICONS.error + '<div>' + ((res && res.message) || 'Có lỗi xảy ra khi gửi báo cáo.') + '</div>';
+              alertEl.style.display = 'flex';
+            }
+          })
+          .withFailureHandler(function (err) {
+            btn.disabled = false;
+            btnText.textContent = 'Gửi báo cáo lý do';
+            alertEl.className = 'banner banner-error';
+            alertEl.innerHTML = ICONS.error + '<div>Lỗi kết nối máy chủ: ' + (err.message || err.toString()) + '</div>';
+            alertEl.style.display = 'flex';
+          })
+          .submitNonCompletionReport(fullName, className, stt, week, reason);
+      }
     </script>
 
     <!-- MODAL TIẾN TRÌNH CÁC LỚP -->
@@ -1967,6 +2138,64 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             Tôi đã đọc & Cam kết tuân thủ
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL BÁO CÁO KHÔNG THỰC HIỆN ĐƯỢC -->
+    <div id="nonCompletionModal" class="modal-backdrop hidden" onclick="handleNonCompBackdropClick(event)">
+      <div class="rules-modal-dialog" style="max-width: 540px;">
+        <div class="modal-header" style="border-bottom: 1.5px solid #FEE2E2; background: #FFF5F5;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <h2 style="font-size: 16.5px; font-weight: 700; color: #991B1B; margin: 0;">Báo lý do không thực hiện hoạt động</h2>
+          </div>
+          <button type="button" class="modal-close-btn" onclick="closeNonCompletionModal()">&times;</button>
+        </div>
+
+        <div class="rules-modal-body" style="padding: 16px 20px;">
+          <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 11px 14px; margin-bottom: 14px; font-size: 13px; color: #991B1B; line-height: 1.45;">
+            <strong>📌 Lưu ý:</strong> Dành cho học sinh có lý do chính đáng (nghỉ ốm có phép, hỏng thiết bị, lý do gia đình, bận thi đấu...). Thông tin sẽ được gửi trực tiếp đến Đoàn trường và GVCN để theo dõi và xem xét.
+          </div>
+
+          <div id="nonCompModalAlert" style="display: none; margin-bottom: 14px;"></div>
+
+          <form id="nonCompForm" onsubmit="handleNonCompSubmit(event)">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="ncWeekSelect" style="font-size: 13px; font-weight: 600; color: var(--ink);">Hoạt động / Phong trào <span style="color:#DC2626;">*</span></label>
+              <select id="ncWeekSelect" style="width: 100%; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 13.5px;" required></select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div class="form-group">
+                <label for="ncClassName" style="font-size: 13px; font-weight: 600; color: var(--ink);">Lớp <span style="color:#DC2626;">*</span></label>
+                <input type="text" id="ncClassName" list="classListOptions" placeholder="VD: 12A3" style="width: 100%; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 13.5px;" required>
+              </div>
+              <div class="form-group">
+                <label for="ncStt" style="font-size: 13px; font-weight: 600; color: var(--ink);">STT trong lớp</label>
+                <input type="number" id="ncStt" min="1" max="60" placeholder="VD: 15" style="width: 100%; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 13.5px;">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="ncFullName" style="font-size: 13px; font-weight: 600; color: var(--ink);">Họ và tên học sinh <span style="color:#DC2626;">*</span></label>
+              <input type="text" id="ncFullName" placeholder="Nhập họ và tên đầy đủ của bạn" style="width: 100%; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 13.5px;" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="ncReason" style="font-size: 13px; font-weight: 600; color: var(--ink);">Lý do không thực hiện được <span style="color:#DC2626;">*</span></label>
+              <textarea id="ncReason" rows="3" placeholder="Ghi rõ lý do (VD: Nghỉ ốm có phép từ ngày... đến ngày..., điện thoại bị hỏng đang gửi sửa...)" style="width: 100%; padding: 10px 12px; border: 1.5px solid #CBD5E1; border-radius: 8px; font-family: inherit; font-size: 13.5px; resize: vertical;" required minlength="5"></textarea>
+              <small style="color: var(--muted); font-size: 12px;">Tối thiểu 5 ký tự. Vui lòng ghi trung thực, cụ thể.</small>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 12px; border-top: 1px solid #E2E8F0;">
+              <button type="button" class="btn-close-rules-text" onclick="closeNonCompletionModal()">Đóng</button>
+              <button type="submit" id="ncSubmitBtn" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: #DC2626; color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 13.5px; cursor: pointer; transition: background 0.15s ease;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <span id="ncSubmitBtnText">Gửi báo cáo lý do</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

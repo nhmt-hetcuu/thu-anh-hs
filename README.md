@@ -1,28 +1,52 @@
 # Web Thu Hình Ảnh Hoạt Động Đoàn
 
-Ứng dụng web chạy trên **Google Apps Script** giúp học sinh nộp ảnh/video minh chứng hoạt động Đoàn theo từng tuần. File được lưu tự động vào **Google Drive**, dữ liệu (họ tên, lớp, thời gian, link ảnh) được ghi vào **Google Sheet** — không cần server riêng, không tốn phí. <br>
-**Drive Demo:** https://drive.google.com/drive/folders/1EW39H6RnS33-lJf6CG3D0o08EWxAlME1?usp=sharing
-<br>
-**App Script Demo:** https://script.google.com/d/1YJpCO5uJCja1WxbwEcmAF7NEq2ZDIeWy4UH18_QTM0WfkOk0w_homXEK/edit?usp=sharing
-<br>
-**Link Demo:** https://script.google.com/macros/s/AKfycbzC7p4uxISLh_4f8dXxpFbY_00RaX8xeipj0Kmc-RcXEDQ70neaeCCV6xS7Kq7XS7ZOpw/exec
+Ứng dụng web chạy trên **Google Apps Script** giúp học sinh nộp ảnh/video minh chứng hoạt động Đoàn theo từng tuần. File được lưu tự động vào **Google Drive**, dữ liệu (họ tên, lớp, thời gian, link ảnh) được ghi vào **Google Sheet** — không cần server riêng, không tốn phí hosting.
+
+> 📁 **Drive Demo thực tế**: [Xem thư mục Google Drive mẫu](https://drive.google.com/drive/folders/1EW39H6RnS33-lJf6CG3D0o08EWxAlME1?usp=sharing) (Minh họa cấu trúc thư mục theo Hoạt động, Lớp và quy tắc đặt tên file tự động).
+
 ## 📸 Hình ảnh giao diện (Demo Screenshots)
 
 ### 1. Phía Học sinh & Công khai
-| Form nộp bài học sinh (nhập STT, họ tên, lớp) | Modal theo dõi tiến độ các lớp & Copy Zalo |
-| :---: | :---: |
-| ![Form nộp bài học sinh](docs/demo-student-form.png) | ![Tiến độ thực hiện các lớp](docs/demo-student-progress.png) |
+| Form nộp bài & Bắt buộc đọc nội quy | Modal Nội quy & Cam kết tuân thủ | Báo không thực hiện được (Lý do nghỉ) | Tiến độ các lớp & Copy Zalo |
+| :---: | :---: | :---: | :---: |
+| ![Form nộp bài học sinh](docs/demo-student-form.png) | ![Nội quy nộp minh chứng](docs/demo-rules-modal.png) | ![Modal Báo không thực hiện](docs/demo-non-completion-modal.png) | ![Tiến độ thực hiện các lớp](docs/demo-student-progress.png) |
 
 ### 2. Phía Quản trị viên (Admin Portal)
 | Dashboard tiến độ phong trào & Chỉ tiêu | Quản lý Sĩ số & Số đoàn viên từng lớp |
 | :---: | :---: |
 | ![Admin Dashboard](docs/demo-admin-dashboard.png) | ![Quản lý lớp và sĩ số](docs/demo-admin-classes.png) |
 
-| Cấu hình phong trào, thời gian & chỉ tiêu |
-| :---: |
-| ![Cấu hình phong trào](docs/demo-admin-config.png) |
+| Cấu hình phong trào, thời gian & chỉ tiêu | Quản lý Báo cáo không thực hiện được |
+| :---: | :---: |
+| ![Cấu hình phong trào](docs/demo-admin-config.png) | ![Quản lý báo không thực hiện](docs/demo-admin-non-completion.png) |
 
 ## Tính năng
+
+- **Cơ chế Chống gửi trùng & Giới hạn tối đa 3 lần nộp bài**:
+  - Mỗi học sinh (nhận diện chính xác theo **Lớp + Số thứ tự (STT)** hoặc **Họ và tên**) chỉ được phép nộp ảnh minh chứng tối đa **3 lần** cho mỗi hoạt động/phong trào.
+  - Khi học sinh cố gắng gửi bài lần thứ 4, hệ thống sẽ tự động chặn và từ chối xử lý, kèm thông báo giải thích rõ ràng.
+  - **Kiểm tra trạng thái tự động thời gian thực (Real-time Async Check)**: Ngay khi học sinh nhập xong STT, Họ tên, chọn Lớp và Hoạt động, hệ thống lập tức kiểm tra và hiển thị thẻ thông báo học sinh đã nộp mấy lần (1/3, 2/3, 3/3), kèm hướng dẫn cụ thể.
+- **Tự động Dọn dẹp & Xóa file cũ trên Google Drive**:
+  - Khi học sinh nộp lại minh chứng (lần 2 hoặc lần 3), hệ thống sẽ **tự động tìm và chuyển file ảnh cũ trước đó vào thùng rác (`setTrashed(true)`)**, chỉ giữ lại duy nhất 1 file nộp mới nhất trên Google Drive.
+  - Ngăn ngừa hoàn toàn nguy cơ đầy dung lượng bộ nhớ Google Drive của trường do học sinh nộp đi nộp lại nhiều lần.
+  - Ghi nhận và cập nhật trực tiếp tại chỗ (in-place row update) trên cả sheet phong trào và sheet tổng hợp `DanhSachHocSinh`, tăng bộ đếm **Lần nộp**, không sinh dòng rác và bảo toàn thứ tự sắp xếp STT.
+- **Quy trình Bắt buộc Đọc & Cam kết Nội quy (Consent-gated UI)**:
+  - Tích hợp khối **Nội quy nộp ảnh minh chứng** ngay phía trên nút gửi.
+  - Hộp kiểm (checkbox) cam kết bị khóa (disabled) mặc định nhằm ngăn chặn việc học sinh bấm bừa mà không đọc.
+  - Học sinh bấm **"Đọc nội quy (Bắt buộc)"** để mở modal chi tiết 5 quy định trọng yếu (độ rõ nét của ảnh, minh chứng chính chủ, giới hạn 3 lần nộp & tự động xóa file cũ, hình thức xử lý vi phạm).
+  - Chỉ sau khi bấm nút **"Tôi đã đọc & Cam kết tuân thủ"**, checkbox mới tự động đánh dấu và mở khóa nút **"Gửi ảnh ngay"**.
+- **Báo không thực hiện được (Dành cho học sinh nghỉ ốm / hỏng thiết bị / lý do chính đáng)**:
+  - Cung cấp kênh báo cáo chính thức và minh bạch cho học sinh có trở ngại khách quan không thể tham gia phong trào (nghỉ ốm có phép, hỏng điện thoại/máy tính, bận lịch thi học sinh giỏi, việc gia đình đột xuất...).
+  - Nút **"Báo không thực hiện được (Lý do nghỉ / Không thể tham gia)"** với icon cảnh báo màu cam nổi bật đặt ngay dưới các nút tác vụ trên form nộp bài.
+  - **Tự động điền trước (pre-fill)**: Nếu học sinh đã nhập Họ tên, Lớp hoặc STT ở form chính, modal sẽ tự động lấy sang giúp tiết kiệm tối đa thời gian.
+  - **Chống trùng lặp & cập nhật tại chỗ**: Nếu học sinh gửi lại lý do mới cho cùng một hoạt động, hệ thống sử dụng thuật toán nhận diện học sinh `isSameStudent_` kết hợp `LockService` (khóa 30 giây) để cập nhật nội dung lý do mới ngay tại dòng cũ, tránh sinh dòng rác.
+  - **Lưu trữ chuyên biệt trong Google Sheet**: Dữ liệu tự động ghi vào sheet tab `BaoKhongThucHien` (trên file Google Sheet Học sinh) với định dạng header đỏ rượu vang (`#991B1B`), tự động đánh số STT liên tục và sắp xếp theo Lớp và STT.
+  - **Ghi nhận lịch sử kiểm toán (Audit Trail)**: Mọi lượt báo cáo hoặc cập nhật lý do đều được tự động ghi vào tab `Log` trên Sheet Quản trị.
+  - **Tab Quản lý riêng trên Admin Portal**:
+    - Tab **"Báo không thực hiện"** trên thanh điều hướng kèm huy hiệu (badge đỏ) hiển thị số lượng trường hợp cần xử lý.
+    - Bộ lọc đa năng theo Hoạt động/Phong trào, theo từng Lớp và ô tìm kiếm tức thì theo từ khóa, họ tên, lý do.
+    - Thẻ thống kê KPI tổng quan: Tổng số học sinh báo không tham gia, Số lớp có học sinh báo cáo.
+    - Bảng danh sách trực quan hiển thị đầy đủ thời gian, lớp, STT, họ tên, lý do cụ thể, ghi chú trạng thái và nút xóa dành cho quản trị viên.
 
 - **Kiến trúc Tách biệt 2 Google Spreadsheet Độc Lập (`STUDENT_SPREADSHEET_ID` & `ADMIN_SPREADSHEET_ID`)**:
   - **1. File Google Sheet Học sinh (`STUDENT_SPREADSHEET_ID`)**:
@@ -136,16 +160,28 @@ Bạn có thể chỉnh sửa qua trang Admin hoặc sửa trực tiếp trong 2
 **1. Sheet chính `DanhSachHocSinh` (Đặt ở vị trí tab đầu tiên):**
 Bảng tổng hợp toàn bộ bài nộp học sinh của trường qua tất cả các phong trào:
 - Cột A: `STT` (Được đánh số tăng dần liên tục 1, 2, 3...)
-- Cột B: `Họ và tên`
-- Cột C: `Lớp`
-- Cột D: `STT Lớp` (Số thứ tự của học sinh trong lớp)
-- Cột E: `Hoạt động` (Tên phong trào tham gia)
-- Cột F: `Thời gian` (Thời điểm học sinh nộp bài)
-- Cột G: `Link ảnh / Minh chứng` (Link Google Drive mở trực tiếp)
+- Cột B: `Lớp`
+- Cột C: `STT Lớp` (Số thứ tự của học sinh trong lớp)
+- Cột D: `Họ và tên`
+- Cột E: `Hoạt động / Phong trào` (Tên phong trào tham gia)
+- Cột F: `Thời gian nộp` (Thời điểm học sinh nộp bài)
+- Cột G: `Link ảnh minh chứng` (Link Google Drive mở trực tiếp)
+- Cột H: `Lần nộp` (Bộ đếm số lần nộp bài: Lần 1/3, Lần 2/3, Lần 3/3)
 *(Dữ liệu luôn được tự động sắp xếp theo Lớp rồi theo STT Lớp tăng dần để phục vụ tra cứu, in ấn).*
 
 **2. Các tab Hoạt động theo phong trào:**
-Mỗi phong trào có 1 tab riêng biệt (VD: `Tuan 1`, `Nu cuoi Viet Nam`...) gồm 5 cột: `STT | Họ và tên | Lớp | Thời gian | Link ảnh`. Tự động kẻ bảng và sắp xếp từ trên xuống dưới theo STT và Lớp.
+Mỗi phong trào có 1 tab riêng biệt (VD: `Tuan 1`, `Nu cuoi Viet Nam`...) gồm 6 cột: `STT | Họ và tên | Lớp | Thời gian | Link ảnh | Lần nộp`. Tự động kẻ bảng, hiển thị số lần nộp của học sinh và sắp xếp từ trên xuống dưới theo STT và Lớp.
+
+**3. Sheet `BaoKhongThucHien` (Danh sách học sinh báo không thực hiện được):**
+Bảng quản lý học sinh có lý do chính đáng không tham gia hoạt động, định dạng header đỏ rượu vang (`#991B1B`):
+- Cột A: `STT` (Được đánh số tăng dần liên tục 1, 2, 3...)
+- Cột B: `Thời gian báo`
+- Cột C: `Lớp`
+- Cột D: `STT Lớp`
+- Cột E: `Họ và tên`
+- Cột F: `Hoạt động / Phong trào`
+- Cột G: `Lý do không thực hiện`
+- Cột H: `Ghi chú` (Chờ xác nhận / Đã cập nhật lý do)
 
 ---
 
@@ -186,7 +222,7 @@ Sửa xong lưu lại, **không cần deploy lại** — form tự đọc giá t
 
 ## Cấu trúc dữ liệu sau khi chạy
 
-**Google Drive:**
+**Google Drive** ([Xem thư mục Drive Demo thực tế](https://drive.google.com/drive/folders/1EW39H6RnS33-lJf6CG3D0o08EWxAlME1?usp=sharing)):
 ```
 Thư mục gốc/
 ├── Hoạt động 1/
@@ -199,6 +235,7 @@ Thư mục gốc/
 
 **Google Sheet 1 (Học sinh - `STUDENT_SPREADSHEET_ID`):**
 - `DanhSachHocSinh` (Sheet chính, tab đầu tiên): Toàn bộ bài nộp của học sinh, tự động sort theo Lớp & STT.
+- `BaoKhongThucHien`: Danh sách học sinh báo lý do không thể tham gia hoạt động (định dạng đỏ rượu vang `#991B1B`).
 - `Hoạt động ...`: Dữ liệu bài nộp riêng cho từng phong trào.
 
 **Google Sheet 2 (Quản trị & Log - `ADMIN_SPREADSHEET_ID`):**
