@@ -347,7 +347,7 @@ function getMainStudentSheet_(ss) {
 
 function formatMainStudentSheet_(sheet) {
   try {
-    var headerRange = sheet.getRange(1, 1, 1, 7);
+    var headerRange = sheet.getRange(1, 1, 1, 8);
     headerRange.setBackground('#1C2541');
     headerRange.setFontColor('#FFFFFF');
     headerRange.setFontWeight('bold');
@@ -363,11 +363,12 @@ function formatMainStudentSheet_(sheet) {
     sheet.setColumnWidth(5, 320); // Hoạt động / Phong trào
     sheet.setColumnWidth(6, 165); // Thời gian nộp
     sheet.setColumnWidth(7, 140); // Link ảnh minh chứng
+    sheet.setColumnWidth(8, 85);  // Lần nộp
 
     var lastRow = sheet.getLastRow();
     if (lastRow >= 2) {
       var numRows = lastRow - 1;
-      var dataRange = sheet.getRange(2, 1, numRows, 7);
+      var dataRange = sheet.getRange(2, 1, numRows, 8);
       dataRange.setVerticalAlignment('middle');
       dataRange.setBorder(true, true, true, true, true, true, '#CBD5E1', SpreadsheetApp.BorderStyle.SOLID);
 
@@ -375,11 +376,11 @@ function formatMainStudentSheet_(sheet) {
       sheet.getRange(2, 2, numRows, 2).setHorizontalAlignment('center');
       sheet.getRange(2, 4, numRows, 1).setHorizontalAlignment('left');
       sheet.getRange(2, 5, numRows, 1).setHorizontalAlignment('left').setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
-      sheet.getRange(2, 6, numRows, 2).setHorizontalAlignment('center');
+      sheet.getRange(2, 6, numRows, 3).setHorizontalAlignment('center');
 
       for (var r = 2; r <= lastRow; r++) {
         var rowBg = (r % 2 === 0) ? '#FFFFFF' : '#F8FAFC';
-        sheet.getRange(r, 1, 1, 7).setBackground(rowBg);
+        sheet.getRange(r, 1, 1, 8).setBackground(rowBg);
         sheet.setRowHeight(r, 30);
       }
     }
@@ -387,16 +388,19 @@ function formatMainStudentSheet_(sheet) {
 }
 
 function ensureMainStudentSheetHeader_(sheet) {
-  var headers = [['STT', 'Lớp', 'STT Lớp', 'Họ và tên', 'Hoạt động / Phong trào', 'Thời gian nộp', 'Link ảnh minh chứng']];
+  var headers = [['STT', 'Lớp', 'STT Lớp', 'Họ và tên', 'Hoạt động / Phong trào', 'Thời gian nộp', 'Link ảnh minh chứng', 'Lần nộp']];
   var lastRow = sheet.getLastRow();
   if (lastRow === 0) {
-    sheet.getRange(1, 1, 1, 7).setValues(headers);
+    sheet.getRange(1, 1, 1, 8).setValues(headers);
     formatMainStudentSheet_(sheet);
     return;
   }
   var firstCell = (sheet.getRange(1, 1).getValue() || '').toString().trim().toUpperCase();
   if (firstCell !== 'STT') {
-    sheet.getRange(1, 1, 1, 7).setValues(headers);
+    sheet.getRange(1, 1, 1, 8).setValues(headers);
+    formatMainStudentSheet_(sheet);
+  } else if (sheet.getLastColumn() < 8) {
+    sheet.getRange(1, 8).setValue('Lần nộp');
     formatMainStudentSheet_(sheet);
   }
 }
@@ -595,7 +599,7 @@ function writeLog_(ss, action, actor, className, activityName, details, linkUrl,
 
 // Trang trí 1 tab Tuần: header tô màu, đóng băng dòng đầu, kẻ sọc xen kẽ, canh cột
 function formatWeekSheet_(sheet) {
-  var headerRange = sheet.getRange(1, 1, 1, 5);
+  var headerRange = sheet.getRange(1, 1, 1, 6);
   headerRange.setBackground('#1C2541');
   headerRange.setFontColor('#FFFFFF');
   headerRange.setFontWeight('bold');
@@ -609,16 +613,18 @@ function formatWeekSheet_(sheet) {
   sheet.setColumnWidth(3, 90);  // Lớp
   sheet.setColumnWidth(4, 150); // Thời gian
   sheet.setColumnWidth(5, 130); // Link ảnh
+  sheet.setColumnWidth(6, 85);  // Lần nộp
 
-  var wholeRange = sheet.getRange(1, 1, 2000, 5);
+  var wholeRange = sheet.getRange(1, 1, 2000, 6);
   wholeRange.setBorder(true, true, true, true, true, true, '#E5E1D6', SpreadsheetApp.BorderStyle.SOLID);
 
-  var dataRange = sheet.getRange(2, 1, 1999, 5);
+  var dataRange = sheet.getRange(2, 1, 1999, 6);
   dataRange.setVerticalAlignment('middle');
   sheet.getRange(2, 1, 1999, 1).setHorizontalAlignment('center'); // Cột STT căn giữa
   sheet.getRange(2, 3, 1999, 1).setHorizontalAlignment('center'); // Cột Lớp căn giữa
   sheet.getRange(2, 4, 1999, 1).setHorizontalAlignment('center'); // Cột Thời gian căn giữa
   sheet.getRange(2, 5, 1999, 1).setHorizontalAlignment('center'); // Cột Link ảnh căn giữa
+  sheet.getRange(2, 6, 1999, 1).setHorizontalAlignment('center'); // Cột Lần nộp căn giữa
 
   var rules = sheet.getConditionalFormatRules().filter(function (r) {
     return r.getRanges().length === 0 ||
@@ -633,11 +639,12 @@ function formatWeekSheet_(sheet) {
   sheet.setConditionalFormatRules(rules);
 }
 
-// Đảm bảo tab Tuần có đủ 5 cột và tiêu đề chuẩn [STT, Họ và tên, Lớp, Thời gian, Link ảnh]
+// Đảm bảo tab Tuần có đủ 6 cột và tiêu đề chuẩn [STT, Họ và tên, Lớp, Thời gian, Link ảnh, Lần nộp]
 function ensureWeekSheetHeader_(sheet) {
   var lastRow = sheet.getLastRow();
+  var standardHeaders = ["STT", "Họ và tên", "Lớp", "Thời gian", "Link ảnh", "Lần nộp"];
   if (lastRow === 0) {
-    sheet.appendRow(["STT", "Họ và tên", "Lớp", "Thời gian", "Link ảnh"]);
+    sheet.appendRow(standardHeaders);
     formatWeekSheet_(sheet);
     return;
   }
@@ -646,11 +653,17 @@ function ensureWeekSheetHeader_(sheet) {
     // Sheet cũ 4 cột (Thời gian ở cột 1) -> chèn cột STT vào cột 1
     sheet.insertColumnBefore(1);
     sheet.getRange(1, 1).setValue('STT');
-    formatWeekSheet_(sheet);
-  } else if (firstCell !== 'STT') {
-    sheet.getRange(1, 1, 1, 5).setValues([["STT", "Họ và tên", "Lớp", "Thời gian", "Link ảnh"]]);
-    formatWeekSheet_(sheet);
   }
+
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 6) {
+    sheet.getRange(1, 6).setValue('Lần nộp');
+  } else {
+    var c6Val = (sheet.getRange(1, 6).getValue() || '').toString().trim();
+    if (!c6Val) sheet.getRange(1, 6).setValue('Lần nộp');
+  }
+
+  formatWeekSheet_(sheet);
 }
 
 // ============================================================
@@ -906,9 +919,108 @@ function getFormConfig() {
   }
 }
 
+// ============================================================
+// TIỆN ÍCH SO SÁNH HỌC SINH & XÓA FILE DRIVE CŨ
+// ============================================================
+
+function normalizeClass_(c) {
+  return (c || '').toString().toUpperCase().replace(/[\s\-_.]/g, '');
+}
+
+function normalizeStudentName_(n) {
+  return (n || '')
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function isSameStudent_(rowName, rowClass, rowStt, targetName, targetClass, targetStt) {
+  if (normalizeClass_(rowClass) !== normalizeClass_(targetClass)) {
+    return false;
+  }
+  var rStt = parseInt(rowStt, 10);
+  var tStt = parseInt(targetStt, 10);
+  if (!isNaN(rStt) && !isNaN(tStt) && rStt > 0 && tStt > 0) {
+    return rStt === tStt;
+  }
+  return normalizeStudentName_(rowName) === normalizeStudentName_(targetName);
+}
+
+function extractDriveFileId_(url) {
+  if (!url) return '';
+  var str = url.toString();
+  var m1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m1) return m1[1];
+  var m2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m2) return m2[1];
+  return '';
+}
+
+function deleteDriveFileByUrl_(url) {
+  if (!url) return false;
+  try {
+    var fileId = extractDriveFileId_(url);
+    if (fileId) {
+      DriveApp.getFileById(fileId).setTrashed(true);
+      return true;
+    }
+  } catch (e) {
+    console.warn('Lỗi khi xóa file cũ trên Drive (' + url + '): ' + e.toString());
+  }
+  return false;
+}
+
+// Kiểm tra số lần học sinh đã nộp cho 1 phong trào (tối đa 3 lần)
+function checkStudentSubmissionStatus(fullName, className, stt, week) {
+  try {
+    if (!className || !week) {
+      return { submitted: false, count: 0, maxCount: 3, canSubmitMore: true };
+    }
+    var ssStudent = getStudentSpreadsheet_();
+    var sheetName = sanitizeSheetName_(week);
+    var sheet = ssStudent.getSheetByName(sheetName) || ssStudent.getSheetByName(week);
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return { submitted: false, count: 0, maxCount: 3, canSubmitMore: true };
+    }
+
+    var numRows = sheet.getLastRow() - 1;
+    var lastCol = Math.max(sheet.getLastColumn(), 6);
+    var data = sheet.getRange(2, 1, numRows, lastCol).getValues();
+    var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var hasSttCol = (header[0] || '').toString().trim().toUpperCase() === 'STT';
+
+    for (var r = 0; r < numRows; r++) {
+      var rStt = hasSttCol ? data[r][0] : '';
+      var rName = hasSttCol ? data[r][1] : data[r][1];
+      var rClass = hasSttCol ? data[r][2] : data[r][2];
+
+      if (isSameStudent_(rName, rClass, rStt, fullName, className, stt)) {
+        var countVal = hasSttCol ? data[r][5] : data[r][4];
+        var count = parseInt(countVal, 10);
+        if (isNaN(count) || count <= 0) count = 1;
+        var timeVal = (hasSttCol ? data[r][3] : data[r][0]) || '';
+        if (timeVal instanceof Date) {
+          timeVal = Utilities.formatDate(timeVal, "GMT+7", "dd/MM/yyyy HH:mm");
+        }
+        return {
+          submitted: true,
+          count: count,
+          maxCount: 3,
+          canSubmitMore: (count < 3),
+          lastTime: timeVal.toString()
+        };
+      }
+    }
+    return { submitted: false, count: 0, maxCount: 3, canSubmitMore: true };
+  } catch (e) {
+    return { submitted: false, count: 0, maxCount: 3, canSubmitMore: true, error: e.toString() };
+  }
+}
+
 function uploadFile(base64Data, fileName, fullName, className, week, stt) {
   if (!base64Data || !fileName || !fullName || !className || !week) {
-    return "LỖI: Thiếu dữ liệu (họ tên / lớp / tuần / file).";
+    return "LỖI: Thiếu dữ liệu (họ tên / lớp / hoạt động / file).";
   }
 
   var sttNum = parseInt(stt, 10);
@@ -924,6 +1036,65 @@ function uploadFile(base64Data, fileName, fullName, className, week, stt) {
   }
 
   try {
+    var MAX_SUBMISSIONS = 3;
+    var ssStudent = getStudentSpreadsheet_();
+
+    // 0. KIỂM TRA SỐ LẦN ĐÃ NỘP TRƯỚC ĐÓ CỦA HỌC SINH TRONG HOẠT ĐỘNG NÀY
+    var sheetName = sanitizeSheetName_(week);
+    var weekSheet = ssStudent.getSheetByName(sheetName) || ssStudent.getSheetByName(week);
+    var existingSubmitCount = 0;
+    var matchedWeekRowIndices = []; // Lưu các số dòng (1-based) bị trùng để cập nhật / dọn dẹp
+    var oldDriveUrls = [];
+
+    if (weekSheet && weekSheet.getLastRow() > 1) {
+      ensureWeekSheetHeader_(weekSheet);
+      var wNumRows = weekSheet.getLastRow() - 1;
+      var wLastCol = Math.max(weekSheet.getLastColumn(), 6);
+      var wData = weekSheet.getRange(2, 1, wNumRows, wLastCol).getValues();
+      var wHeader = weekSheet.getRange(1, 1, 1, wLastCol).getValues()[0];
+      var hasSttCol = (wHeader[0] || '').toString().trim().toUpperCase() === 'STT';
+      var richTextLinks = weekSheet.getRange(2, hasSttCol ? 5 : 4, wNumRows, 1).getRichTextValues();
+
+      for (var r = 0; r < wNumRows; r++) {
+        var rStt = hasSttCol ? wData[r][0] : '';
+        var rName = hasSttCol ? wData[r][1] : wData[r][1];
+        var rClass = hasSttCol ? wData[r][2] : wData[r][2];
+
+        if (isSameStudent_(rName, rClass, rStt, fullName, className, sttNum)) {
+          var rowNum = r + 2;
+          matchedWeekRowIndices.push(rowNum);
+
+          var countVal = hasSttCol ? wData[r][5] : wData[r][4];
+          var parsedCount = parseInt(countVal, 10);
+          if (!isNaN(parsedCount) && parsedCount > existingSubmitCount) {
+            existingSubmitCount = parsedCount;
+          }
+
+          var fileUrl = '';
+          if (richTextLinks[r] && richTextLinks[r][0] && richTextLinks[r][0].getLinkUrl()) {
+            fileUrl = richTextLinks[r][0].getLinkUrl();
+          } else {
+            fileUrl = (hasSttCol ? wData[r][4] : wData[r][3]) || '';
+          }
+          if (fileUrl) {
+            oldDriveUrls.push(fileUrl);
+          }
+        }
+      }
+
+      if (matchedWeekRowIndices.length > 0 && existingSubmitCount === 0) {
+        existingSubmitCount = matchedWeekRowIndices.length;
+      }
+    }
+
+    // NẾU ĐÃ NỘP ĐỦ 3 LẦN -> TỪ CHỐI NGAY LẬP TỨC (KHÔNG TẠO FILE MỚI TRÊN DRIVE)
+    if (existingSubmitCount >= MAX_SUBMISSIONS) {
+      return "LỖI: Học sinh " + fullName + " (" + className + (sttNum ? (', STT ' + sttNum) : '') + ") đã nộp tối đa " + MAX_SUBMISSIONS + " lần cho hoạt động này. Hệ thống không tiếp nhận thêm!";
+    }
+
+    var newSubmitCount = (existingSubmitCount > 0) ? (existingSubmitCount + 1) : 1;
+
+    // 1. MỞ THƯ MỤC DRIVE ĐỂ LƯU FILE MỚI
     var mainFolder;
     try {
       mainFolder = DriveApp.getFolderById(MAIN_FOLDER_ID);
@@ -952,110 +1123,179 @@ function uploadFile(base64Data, fileName, fullName, className, week, stt) {
     }
 
     var mainFile, mainFileUrl;
-    try {
-      var splitBase = base64Data.split(',');
-      if (splitBase.length < 2) {
-        return "LỖI: Dữ liệu file gửi lên không hợp lệ.";
+    var splitBase = base64Data.split(',');
+    if (splitBase.length < 2) {
+      return "LỖI: Dữ liệu file gửi lên không hợp lệ.";
+    }
+    var type = splitBase[0].split(';')[0].replace('data:', '');
+    var byteCharacters = Utilities.base64Decode(splitBase[1]);
+
+    // Tên file mới: Lop_STTxx_HoTen_LanX_HoatDong_ThoiGian.duoi
+    var dotIndex = fileName.lastIndexOf('.');
+    var ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : '';
+    var timestampForName = Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss");
+    var sttPrefix = sttNum !== '' ? ('STT' + (sttNum < 10 ? '0' + sttNum : sttNum) + '_') : '';
+    var lanPrefix = 'Lan' + newSubmitCount + '_';
+    var newFileName = sanitizeForFileName_(className) + '_' +
+                       sttPrefix +
+                       sanitizeForFileName_(fullName) + '_' +
+                       lanPrefix +
+                       sanitizeForFileName_(week, 35) + '_' +
+                       timestampForName + (ext ? ('.' + ext) : '');
+
+    var blob = Utilities.newBlob(byteCharacters, type, newFileName);
+    mainFile = targetFolder.createFile(blob);
+    mainFileUrl = mainFile.getUrl();
+
+    // 2. TỰ ĐỘNG XÓA FILE CŨ TRÊN GOOGLE DRIVE (KHI NỘP LẦN 2, 3)
+    if (oldDriveUrls.length > 0) {
+      for (var u = 0; u < oldDriveUrls.length; u++) {
+        deleteDriveFileByUrl_(oldDriveUrls[u]);
       }
-      var type = splitBase[0].split(';')[0].replace('data:', '');
-      var byteCharacters = Utilities.base64Decode(splitBase[1]);
-
-      // Tạo tên file mới: Lớp_STTxx_HọTên_HoạtĐộng_ThờiGian.đuôifile
-      var dotIndex = fileName.lastIndexOf('.');
-      var ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : '';
-      var timestampForName = Utilities.formatDate(new Date(), "GMT+7", "yyyyMMdd_HHmmss");
-      var sttPrefix = sttNum !== '' ? ('STT' + (sttNum < 10 ? '0' + sttNum : sttNum) + '_') : '';
-      var newFileName = sanitizeForFileName_(className) + '_' +
-                         sttPrefix +
-                         sanitizeForFileName_(fullName) + '_' +
-                         sanitizeForFileName_(week, 35) + '_' +
-                         timestampForName + (ext ? ('.' + ext) : '');
-
-      var blob = Utilities.newBlob(byteCharacters, type, newFileName);
-
-      mainFile = targetFolder.createFile(blob);
-      mainFileUrl = mainFile.getUrl();
-    } catch (e) {
-      return "LỖI (Bước tạo file): " + e.toString();
     }
 
-    try {
-      var timestamp = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
-      var ssStudent = getStudentSpreadsheet_();
+    // 3. GHI / CẬP NHẬT VÀO SHEET HOẠT ĐỘNG CỤ THỂ
+    var timestamp = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
+    if (!weekSheet) {
+      weekSheet = ssStudent.insertSheet(sheetName);
+      weekSheet.appendRow(["STT", "Họ và tên", "Lớp", "Thời gian", "Link ảnh", "Lần nộp"]);
+      formatWeekSheet_(weekSheet);
+    } else {
+      ensureWeekSheetHeader_(weekSheet);
+    }
 
-      // 1. Ghi vào Sheet Chính: Danh sách học sinh (DanhSachHocSinh) trên file Học sinh
-      try {
-        var mainSheet = getMainStudentSheet_(ssStudent);
-        var mainLastRow = mainSheet.getLastRow();
-        var nextOverallStt = Math.max(1, mainLastRow);
-        mainSheet.appendRow([nextOverallStt, className, sttNum, fullName, week, timestamp, mainFileUrl]);
-        var newMainRow = mainSheet.getLastRow();
-        var mainLinkValue = SpreadsheetApp.newRichTextValue()
-          .setText("Xem ảnh")
+    var targetWeekRow = -1;
+    if (matchedWeekRowIndices.length > 0) {
+      // Cập nhật đè lên dòng đầu tiên tìm thấy
+      targetWeekRow = matchedWeekRowIndices[0];
+      weekSheet.getRange(targetWeekRow, 1, 1, 6).setValues([[
+        sttNum,
+        fullName,
+        className,
+        timestamp,
+        mainFileUrl,
+        newSubmitCount
+      ]]);
+
+      // Nếu trước đó có các dòng trùng thừa khác, xóa từ dưới lên để không làm xáo trộn chỉ số dòng
+      if (matchedWeekRowIndices.length > 1) {
+        for (var d = matchedWeekRowIndices.length - 1; d >= 1; d--) {
+          try {
+            weekSheet.deleteRow(matchedWeekRowIndices[d]);
+          } catch (eDel) {}
+        }
+      }
+    } else {
+      // Thêm dòng mới nếu chưa từng nộp
+      weekSheet.appendRow([sttNum, fullName, className, timestamp, mainFileUrl, newSubmitCount]);
+      targetWeekRow = weekSheet.getLastRow();
+    }
+
+    var linkLabel = (newSubmitCount > 1) ? ("Xem ảnh (Lần " + newSubmitCount + ")") : "Xem ảnh";
+    var linkValue = SpreadsheetApp.newRichTextValue()
+      .setText(linkLabel)
+      .setLinkUrl(mainFileUrl)
+      .build();
+    weekSheet.getRange(targetWeekRow, 5).setRichTextValue(linkValue);
+
+    // Tự động sắp xếp sheet hoạt động theo Lớp và STT
+    var currentLastRow = weekSheet.getLastRow();
+    if (currentLastRow >= 3) {
+      var numDataRows = currentLastRow - 1;
+      var dataRange = weekSheet.getRange(2, 1, numDataRows, 6);
+      dataRange.sort([
+        { column: 3, ascending: true }, // Cột Lớp
+        { column: 1, ascending: true }  // Cột STT từ nhỏ đến lớn
+      ]);
+    }
+
+    // 4. GHI / CẬP NHẬT VÀO SHEET CHÍNH (DanhSachHocSinh)
+    try {
+      var mainSheet = getMainStudentSheet_(ssStudent);
+      ensureMainStudentSheetHeader_(mainSheet);
+      var mNumRows = mainSheet.getLastRow() - 1;
+      var matchedMainRow = -1;
+
+      if (mNumRows > 0) {
+        var mData = mainSheet.getRange(2, 1, mNumRows, 8).getValues();
+        for (var mr = 0; mr < mNumRows; mr++) {
+          var mClass = mData[mr][1];
+          var mStt = mData[mr][2];
+          var mName = mData[mr][3];
+          var mWeek = mData[mr][4];
+          if (mWeek === week && isSameStudent_(mName, mClass, mStt, fullName, className, sttNum)) {
+            matchedMainRow = mr + 2;
+            break;
+          }
+        }
+      }
+
+      if (matchedMainRow > 0) {
+        // Cập nhật dòng đã có trong DanhSachHocSinh
+        mainSheet.getRange(matchedMainRow, 2, 1, 7).setValues([[
+          className,
+          sttNum,
+          fullName,
+          week,
+          timestamp,
+          mainFileUrl,
+          newSubmitCount
+        ]]);
+        var mainLinkVal = SpreadsheetApp.newRichTextValue()
+          .setText(linkLabel)
           .setLinkUrl(mainFileUrl)
           .build();
-        mainSheet.getRange(newMainRow, 7).setRichTextValue(mainLinkValue);
-
-        // Tự động sắp xếp sheet chính theo Lớp và STT Lớp
-        if (newMainRow >= 3) {
-          var mainNumRows = newMainRow - 1;
-          var mainDataRange = mainSheet.getRange(2, 1, mainNumRows, 7);
-          mainDataRange.sort([
-            { column: 2, ascending: true }, // Cột Lớp
-            { column: 3, ascending: true }  // Cột STT Lớp
-          ]);
-          // Cập nhật lại số thứ tự tổng từ 1 đến N
-          var sttList = [];
-          for (var sIdx = 1; sIdx <= mainNumRows; sIdx++) {
-            sttList.push([sIdx]);
-          }
-          mainSheet.getRange(2, 1, mainNumRows, 1).setValues(sttList);
-        }
-      } catch (eMain) {
-        // Không để lỗi sheet chính chặn ghi vào sheet hoạt động
-      }
-
-      // 2. Ghi vào Sheet hoạt động cụ thể (để Admin/Tiến độ lọc theo phong trào)
-      var sheetName = sanitizeSheetName_(week);
-      var sheet = ssStudent.getSheetByName(sheetName) || ssStudent.getSheetByName(week);
-      if (!sheet) {
-        sheet = ssStudent.insertSheet(sheetName);
-        sheet.appendRow(["STT", "Họ và tên", "Lớp", "Thời gian", "Link ảnh"]);
-        formatWeekSheet_(sheet);
+        mainSheet.getRange(matchedMainRow, 7).setRichTextValue(mainLinkVal);
       } else {
-        ensureWeekSheetHeader_(sheet);
+        // Thêm dòng mới
+        var nextOverallStt = Math.max(1, mainSheet.getLastRow());
+        mainSheet.appendRow([nextOverallStt, className, sttNum, fullName, week, timestamp, mainFileUrl, newSubmitCount]);
+        var newMainRow = mainSheet.getLastRow();
+        var mainLinkVal = SpreadsheetApp.newRichTextValue()
+          .setText(linkLabel)
+          .setLinkUrl(mainFileUrl)
+          .build();
+        mainSheet.getRange(newMainRow, 7).setRichTextValue(mainLinkVal);
       }
 
-      sheet.appendRow([sttNum, fullName, className, timestamp, mainFileUrl]);
-      var lastRow = sheet.getLastRow();
-      var linkValue = SpreadsheetApp.newRichTextValue()
-        .setText("Xem ảnh")
-        .setLinkUrl(mainFileUrl)
-        .build();
-      sheet.getRange(lastRow, 5).setRichTextValue(linkValue);
-
-      // Tự động sắp xếp từ trên xuống dưới theo Lớp và STT
-      if (lastRow >= 3) {
-        var numDataRows = lastRow - 1;
-        var dataRange = sheet.getRange(2, 1, numDataRows, 5);
-        dataRange.sort([
-          { column: 3, ascending: true }, // Cột Lớp
-          { column: 1, ascending: true }  // Cột STT từ nhỏ đến lớn
+      // Sắp xếp lại DanhSachHocSinh theo Lớp và STT Lớp, rồi đánh lại STT tổng 1..N
+      var finalMainLastRow = mainSheet.getLastRow();
+      if (finalMainLastRow >= 3) {
+        var mainTotalDataRows = finalMainLastRow - 1;
+        var mainDataRange = mainSheet.getRange(2, 1, mainTotalDataRows, 8);
+        mainDataRange.sort([
+          { column: 2, ascending: true }, // Cột Lớp
+          { column: 3, ascending: true }  // Cột STT Lớp
         ]);
+        var sttList = [];
+        for (var sIdx = 1; sIdx <= mainTotalDataRows; sIdx++) {
+          sttList.push([sIdx]);
+        }
+        mainSheet.getRange(2, 1, mainTotalDataRows, 1).setValues(sttList);
       }
-
-      // 3. Ghi vào Sheet Chuyên Biệt Ghi Log (Log) trên bảng tính Quản trị
-      var actorStr = (sttNum ? ('STT ' + sttNum + ' - ') : '') + fullName;
-      writeLog_(null, 'Nộp ảnh minh chứng', actorStr, className, week, newFileName, mainFileUrl, 'Thành công');
-
-    } catch (e) {
-      try {
-        writeLog_(null, 'Nộp ảnh minh chứng', fullName, className, week, 'Lỗi ghi sheet: ' + e.toString(), mainFileUrl, 'Thất bại');
-      } catch (eL) {}
-      return "LỖI (Bước ghi Sheet, nhưng file đã lưu tại " + mainFileUrl + "): " + e.toString();
+    } catch (eMain) {
+      console.warn("Lỗi ghi DanhSachHocSinh: " + eMain.toString());
     }
 
-    return mainFileUrl;
+    // 5. GHI LOG KIỂM TOÁN VÀO SHEET LOG (BẢNG QUẢN TRỊ)
+    var actorStr = (sttNum ? ('STT ' + sttNum + ' - ') : '') + fullName;
+    if (newSubmitCount > 1) {
+      writeLog_(null, 'Nộp lại minh chứng (Lần ' + newSubmitCount + '/3 - Đã xóa file cũ)', actorStr, className, week, 'Thay thế file cũ bằng: ' + newFileName, mainFileUrl, 'Thành công');
+    } else {
+      writeLog_(null, 'Nộp ảnh minh chứng (Lần 1/3)', actorStr, className, week, newFileName, mainFileUrl, 'Thành công');
+    }
+
+    return {
+      success: true,
+      url: mainFileUrl,
+      fileUrl: mainFileUrl,
+      count: newSubmitCount,
+      maxCount: MAX_SUBMISSIONS,
+      isReplacement: (newSubmitCount > 1),
+      message: (newSubmitCount > 1)
+        ? ('Nộp lại thành công (Lần nộp ' + newSubmitCount + '/' + MAX_SUBMISSIONS + '). Hệ thống đã tự động thay thế và xóa minh chứng cũ trên Google Drive.')
+        : ('Nộp minh chứng thành công (Lần 1/' + MAX_SUBMISSIONS + ')!')
+    };
 
   } catch (error) {
     return "LỖI (không xác định): " + error.toString() + " | Stack: " + error.stack;
@@ -1370,7 +1610,7 @@ function getAdminSubmissions(password, weekName) {
       var lastRow = sheet.getLastRow();
       if (lastRow > 1) {
         var numRows = lastRow - 1;
-        var lastCol = Math.max(sheet.getLastColumn(), 5);
+        var lastCol = Math.max(sheet.getLastColumn(), 6);
         var values = sheet.getRange(2, 1, numRows, lastCol).getValues();
         var headerValues = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
         var hasSttCol = (headerValues[0] || '').toString().trim().toUpperCase() === 'STT';
@@ -1386,6 +1626,7 @@ function getAdminSubmissions(password, weekName) {
           var classVal = '';
           var timeVal = '';
           var linkVal = '';
+          var submitCountVal = 1;
 
           if (hasSttCol) {
             sttVal = values[i][0];
@@ -1397,6 +1638,10 @@ function getAdminSubmissions(password, weekName) {
             } else if (values[i][4]) {
               linkVal = values[i][4].toString();
             }
+            if (values[i].length >= 6 && values[i][5]) {
+              var parsedC = parseInt(values[i][5], 10);
+              if (!isNaN(parsedC) && parsedC > 0) submitCountVal = parsedC;
+            }
           } else {
             timeVal = values[i][0];
             nameVal = (values[i][1] || '').toString();
@@ -1405,6 +1650,10 @@ function getAdminSubmissions(password, weekName) {
               linkVal = richTexts[i][0].getLinkUrl();
             } else if (values[i][3]) {
               linkVal = values[i][3].toString();
+            }
+            if (values[i].length >= 5 && values[i][4]) {
+              var parsedOldC = parseInt(values[i][4], 10);
+              if (!isNaN(parsedOldC) && parsedOldC > 0) submitCountVal = parsedOldC;
             }
           }
 
@@ -1420,7 +1669,8 @@ function getAdminSubmissions(password, weekName) {
             timestamp: timeVal,
             fullName: nameVal,
             className: classVal,
-            fileUrl: linkVal
+            fileUrl: linkVal,
+            submitCount: submitCountVal
           });
         }
 
@@ -1698,16 +1948,21 @@ function adminDeleteSubmission(password, weekName, rowIndex) {
       }
     } catch (eInfo) {}
 
-    // 1. Xóa khỏi tab hoạt động
+    // 1. Xóa file tương ứng trên Google Drive nếu có
+    if (delInfo.fileUrl) {
+      deleteDriveFileByUrl_(delInfo.fileUrl);
+    }
+
+    // 2. Xóa khỏi tab hoạt động
     sheet.deleteRow(rowIndex);
 
-    // 2. Xóa tương ứng trên Sheet chính DanhSachHocSinh nếu có
+    // 3. Xóa tương ứng trên Sheet chính DanhSachHocSinh nếu có
     try {
       var mainSheet = ssStudent.getSheetByName('DanhSachHocSinh');
       if (mainSheet && delInfo.fileUrl) {
         var mainLast = mainSheet.getLastRow();
         if (mainLast >= 2) {
-          var mainVals = mainSheet.getRange(2, 1, mainLast - 1, 7).getValues();
+          var mainVals = mainSheet.getRange(2, 1, mainLast - 1, Math.max(7, mainSheet.getLastColumn())).getValues();
           for (var m = 0; m < mainVals.length; m++) {
             var mUrl = (mainVals[m][6] || '').toString();
             if (mUrl === delInfo.fileUrl || (delInfo.name && mainVals[m][3] === delInfo.name && mainVals[m][1] === delInfo.class && mainVals[m][4] === weekName)) {
@@ -1715,11 +1970,20 @@ function adminDeleteSubmission(password, weekName, rowIndex) {
               break;
             }
           }
+          // Đánh lại số thứ tự STT tổng 1..N
+          var newMainLast = mainSheet.getLastRow();
+          if (newMainLast >= 2) {
+            var sttArr = [];
+            for (var s = 1; s <= (newMainLast - 1); s++) {
+              sttArr.push([s]);
+            }
+            mainSheet.getRange(2, 1, newMainLast - 1, 1).setValues(sttArr);
+          }
         }
       }
     } catch (eMainDel) {}
 
-    // 3. Ghi vào Sheet chuyên biệt Log trên file Admin
+    // 4. Ghi vào Sheet chuyên biệt Log trên file Admin
     try {
       writeLog_(null, 'Xóa bài nộp', 'Admin', delInfo.class, weekName, 'Xóa bài của: ' + delInfo.name, delInfo.fileUrl, 'Thành công');
     } catch (eLogDel) {}
