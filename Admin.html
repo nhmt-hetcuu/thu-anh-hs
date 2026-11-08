@@ -1,0 +1,2454 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base target="_top">
+    <title>Quản Trị - Thu Hình Ảnh Hoạt Động Đoàn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --ink: #1C2541;
+        --ink-soft: #4B5578;
+        --gold: #B8892B;
+        --gold-soft: rgba(184, 137, 43, 0.12);
+        --paper: #F5F2EC;
+        --surface: #FFFFFF;
+        --line: #E5E1D6;
+        --success: #1F7A4D;
+        --success-bg: #EAF6EF;
+        --error: #B3261E;
+        --error-bg: #FBEAEA;
+        --info: #0284C7;
+        --info-bg: #E0F2FE;
+        --muted: #767A8C;
+        --radius: 12px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--paper);
+        margin: 0;
+        padding: 20px;
+        color: var(--ink);
+        min-height: 100vh;
+      }
+
+      .hidden { display: none !important; }
+
+      /* ================= LOGIN FORM ================= */
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+      }
+
+      .login-card {
+        background: var(--surface);
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(28,37,65,0.08);
+        border: 1px solid var(--line);
+        width: 100%;
+        max-width: 400px;
+        overflow: hidden;
+      }
+
+      .accent-bar {
+        height: 5px;
+        background: linear-gradient(90deg, var(--gold), #D8B25F);
+      }
+
+      .login-header {
+        padding: 30px 28px 16px;
+        text-align: center;
+      }
+
+      .login-header h2 {
+        font-family: 'Source Serif 4', Georgia, serif;
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .login-body {
+        padding: 20px 28px 30px;
+      }
+
+      /* ================= APP LAYOUT ================= */
+      .app-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .navbar {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(28,37,65,0.04);
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--ink);
+      }
+
+      .nav-brand span.badge {
+        font-size: 11px;
+        background: var(--gold-soft);
+        color: var(--gold);
+        border: 1px solid rgba(184, 137, 43, 0.3);
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        font-size: 13.5px;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.15s ease;
+        text-decoration: none;
+        font-family: inherit;
+      }
+
+      .btn-primary { background: var(--ink); color: #fff; }
+      .btn-primary:hover { background: #12192c; }
+
+      .btn-gold { background: var(--gold); color: #fff; }
+      .btn-gold:hover { background: #9c7322; }
+
+      .btn-outline {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+      .btn-outline:hover { background: var(--paper); border-color: #d8d3c5; }
+
+      .btn-danger {
+        background: var(--error-bg);
+        color: var(--error);
+        border-color: rgba(179,38,30,0.2);
+      }
+      .btn-danger:hover { background: #f7d4d4; }
+
+      .btn-sm { padding: 5px 10px; font-size: 12.5px; }
+
+      /* ================= TABS ================= */
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 12px;
+        overflow-x: auto;
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .tab-btn:hover { background: rgba(28,37,65,0.05); }
+
+      .tab-btn.active {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        border: 1px solid var(--line);
+      }
+
+      /* ================= DASHBOARD CARDS ================= */
+      .grid-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .card-stat {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.15s ease;
+      }
+
+      .card-stat:hover {
+        transform: translateY(-2px);
+        border-color: var(--gold);
+      }
+
+      .card-stat.selected {
+        border-color: var(--gold);
+        background: #fffdf9;
+        box-shadow: 0 0 0 2px var(--gold-soft);
+      }
+
+      .card-stat .title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+
+      .card-stat .count {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+
+      .card-stat .count small {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--muted);
+      }
+
+      /* ================= METRIC CARDS ================= */
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .metric-card {
+        background: #FDFCF9;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 18px;
+      }
+
+      .metric-card .metric-label {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .metric-card .metric-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1.2;
+      }
+
+      .metric-card .metric-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* ================= PROGRESS BAR ================= */
+      .progress-container {
+        width: 100%;
+        background: #ECE8DE;
+        border-radius: 999px;
+        height: 10px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.3s ease;
+      }
+
+      .progress-bar-success { background: #2E7D32; }
+      .progress-bar-warning { background: #E65100; }
+      .progress-bar-danger { background: #C62828; }
+      .progress-bar-gold { background: var(--gold); }
+
+      /* ================= BADGE STATUS ================= */
+      .badge-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .badge-status-completed {
+        background: #E8F5E9;
+        color: #2E7D32;
+        border: 1px solid rgba(46, 125, 50, 0.25);
+      }
+      .badge-status-exceeded {
+        background: #E0F2F1;
+        color: #00796B;
+        border: 1px solid rgba(0, 121, 107, 0.25);
+      }
+      .badge-status-inprogress {
+        background: #FFF3E0;
+        color: #E65100;
+        border: 1px solid rgba(230, 81, 0, 0.25);
+      }
+      .badge-status-notstarted {
+        background: #FFEBEE;
+        color: #C62828;
+        border: 1px solid rgba(198, 40, 40, 0.25);
+      }
+      .badge-status-unlisted {
+        background: #EDE7F6;
+        color: #512DA8;
+        border: 1px solid rgba(81, 45, 168, 0.25);
+      }
+
+      /* ================= ACTION BADGES ================= */
+      .badge-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .badge-action-upload { background: #E8F5E9; color: #166534; border: 1px solid rgba(22, 101, 52, 0.25); }
+      .badge-action-delete { background: #FEE2E2; color: #991B1B; border: 1px solid rgba(153, 27, 27, 0.25); }
+      .badge-action-config { background: #E0F2FE; color: #075985; border: 1px solid rgba(7, 89, 133, 0.25); }
+      .badge-action-class { background: #FEF3C7; color: #92400E; border: 1px solid rgba(146, 64, 14, 0.25); }
+      .badge-action-auth { background: #F3E8FF; color: #6B21A8; border: 1px solid rgba(107, 33, 168, 0.25); }
+      .badge-action-format { background: #F1F5F9; color: #334155; border: 1px solid rgba(51, 65, 85, 0.25); }
+
+      /* ================= CONTENT PANELS ================= */
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        margin-bottom: 24px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .panel-header h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .filter-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .input-text, select.input-select {
+        padding: 8px 12px;
+        font-size: 13.5px;
+        font-family: inherit;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .input-text:focus, select.input-select:focus {
+        outline: none;
+        border-color: var(--gold);
+        box-shadow: 0 0 0 2px var(--gold-soft);
+      }
+
+      /* ================= TABLE ================= */
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+        text-align: left;
+      }
+
+      table.data-table th {
+        background: #F8F7F3;
+        color: var(--ink-soft);
+        font-weight: 600;
+        padding: 10px 14px;
+        border-bottom: 1.5px solid var(--line);
+        white-space: nowrap;
+      }
+
+      table.data-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+      }
+
+      table.data-table tr:hover td {
+        background-color: #FAF8F5;
+      }
+
+      .badge-class {
+        display: inline-block;
+        background: var(--gold-soft);
+        color: var(--gold);
+        font-weight: 600;
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 6px;
+      }
+
+      /* ================= FORM ELEMENTS ================= */
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+
+      .form-group small.help {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+
+      .weeks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 8px;
+      }
+
+      .activity-config-card {
+        background: #FAF9F6;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 14px;
+        transition: border-color 0.2s;
+      }
+      .activity-config-card:hover {
+        border-color: var(--gold);
+      }
+      .activity-order-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        height: 28px;
+        padding: 0 6px;
+        background: rgba(28,37,65,0.08);
+        color: var(--navy);
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .act-grid-fields {
+        display: grid;
+        grid-template-columns: 140px 140px 135px 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+      @media (max-width: 768px) {
+        .act-grid-fields {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        .act-grid-fields {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .week-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ================= BANNERS & NOTIFICATIONS ================= */
+      .banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 8px;
+        font-size: 13.5px;
+        margin-bottom: 16px;
+        border: 1px solid transparent;
+      }
+      .banner-success { background: var(--success-bg); color: var(--success); border-color: rgba(31,122,77,0.2); }
+      .banner-error { background: var(--error-bg); color: var(--error); border-color: rgba(179,38,30,0.2); }
+      .banner-info { background: var(--info-bg); color: var(--info); border-color: rgba(2,132,199,0.2); }
+
+      .spinner {
+        width: 16px; height: 16px;
+        border: 2px solid rgba(28,37,65,0.2);
+        border-top-color: var(--ink);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: inline-block;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ================= MODAL ================= */
+      .modal-backdrop {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+      }
+
+      .modal-content {
+        background: var(--surface);
+        border-radius: var(--radius);
+        max-width: 500px;
+        width: 100%;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .modal-header h4 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--muted);
+      }
+
+      /* Preview Modal for Images */
+      .preview-image-modal img {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 8px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 600px) {
+        body { padding: 12px; }
+        .navbar { flex-direction: column; align-items: flex-start; }
+        .panel { padding: 16px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ================= LOGIN VIEW ================= -->
+    <div id="loginView" class="login-container">
+      <div class="login-card">
+        <div class="accent-bar"></div>
+        <div class="login-header">
+          <h2>Đăng Nhập Quản Trị</h2>
+          <div style="font-size: 13px; color: var(--muted);">Quản lý hệ thống thu hình ảnh Đoàn</div>
+        </div>
+        <div class="login-body">
+          <div id="loginMsg"></div>
+          <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="adminPass">Mật khẩu Quản trị</label>
+              <input type="password" id="adminPass" class="input-text" style="width: 100%;" placeholder="Mặc định: admin123" required autofocus>
+              <small class="help">Mật khẩu cấu hình tại ô B5 trong tab "Config" của Sheet.</small>
+            </div>
+            <button type="submit" id="loginBtn" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;">
+              <span>Đăng nhập</span>
+            </button>
+            <div style="text-align: center; margin-top: 16px;">
+              <a id="loginBackLink" href="<?= formUrl ?>" target="_top" onclick="handleGoToForm(event)" style="font-size: 13px; color: var(--ink-soft); text-decoration: none;">← Quay lại trang nộp bài</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DASHBOARD VIEW ================= -->
+    <div id="adminDashboard" class="app-wrapper hidden">
+      <!-- Top Navigation -->
+      <header class="navbar">
+        <div class="nav-brand">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span id="navTitle">Bảng Quản Trị</span>
+          <span class="badge">Admin</span>
+        </div>
+        <div class="nav-links">
+          <a id="sheetLink" href="#" target="_blank" class="btn btn-outline btn-sm" title="Mở trực tiếp Google Sheet Học sinh (Danh sách tổng hợp & các phong trào)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Sheet Học sinh
+          </a>
+          <a id="adminSheetLink" href="#" target="_blank" class="btn btn-outline btn-sm" title="Mở trực tiếp Google Sheet Quản trị & Nhật ký hệ thống (Config, Log, Lớp)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            Sheet Quản trị & Log
+          </a>
+          <a id="driveLink" href="#" target="_blank" class="btn btn-outline btn-sm" title="Mở thư mục Google Drive">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            Mở Drive
+          </a>
+          <a id="formLink" href="<?= formUrl ?>" target="_top" onclick="handleGoToForm(event)" class="btn btn-outline btn-sm" title="Mở trang Form nộp bài của học sinh">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Xem Form
+          </a>
+          <button onclick="handleLogout()" class="btn btn-danger btn-sm">Đăng xuất</button>
+        </div>
+      </header>
+
+      <!-- Global Notification Banner -->
+      <div id="globalMsg"></div>
+
+      <!-- Navigation Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('progressTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Tiến độ phong trào
+        </button>
+        <button class="tab-btn" onclick="switchTab('submissionsTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Danh sách bài nộp
+        </button>
+        <button class="tab-btn" onclick="switchTab('classesTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Quản lý Lớp & Sĩ số
+        </button>
+        <button class="tab-btn" onclick="switchTab('configTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Cấu hình phong trào
+        </button>
+        <button class="tab-btn" onclick="switchTab('logsTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Nhật ký hệ thống
+        </button>
+        <button class="tab-btn" onclick="switchTab('toolsTab')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Mật khẩu & Công cụ
+        </button>
+      </div>
+
+      <!-- ================= TAB 1: MOVEMENT PROGRESS & TARGET CALCULATION ================= -->
+      <div id="progressTab">
+        <!-- Week Selector & Quick Target Toggle Bar -->
+        <div class="panel" style="padding: 16px 20px; margin-bottom: 18px;">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <label for="progressWeekSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Chọn hoạt động:</label>
+              <select id="progressWeekSelect" class="input-text" onchange="handleProgressWeekChange(this.value)" style="min-width: 220px; font-weight: 600;">
+              </select>
+              <span id="currentWeekTargetBadge" class="badge-status-completed" style="font-size: 12.5px; padding: 4px 10px;">
+                Đang tải...
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <button id="toggleTargetTypeBtn" onclick="toggleCurrentWeekTarget()" class="btn btn-outline btn-sm" title="Chuyển đổi yêu cầu đối tượng của hoạt động này">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                <span id="toggleTargetBtnText">Đổi yêu cầu</span>
+              </button>
+              <button onclick="copyZaloReport()" class="btn btn-primary btn-sm" title="Sao chép báo cáo tiến độ nộp bài định dạng đẹp để gửi Zalo cho GVCN/Bí thư">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Sao chép gửi Zalo
+              </button>
+            </div>
+          </div>
+
+          <!-- Chi tiết hoạt động đang chọn -->
+          <div id="adminActInfoRow" style="display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="font-size: 13.5px; font-weight: 700; color: var(--navy); word-break: break-word;" id="adminActFullName"></div>
+              <div style="display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); flex-wrap: wrap;">
+                <span id="adminActDuration">📅 <strong id="adminActDurationText" style="color: var(--ink);"></strong></span>
+                <span id="adminActStatusBadge" class="badge-class"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- School-Wide Aggregate Metric Cards -->
+        <div id="progressMetricsGrid" class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Tổng chỉ tiêu toàn trường</div>
+            <div class="metric-value" id="metricTotalTarget">0</div>
+            <div class="metric-sub" id="metricTargetNote">Dựa trên yêu cầu phong trào</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Đã nộp</div>
+            <div class="metric-value" id="metricTotalSubmitted" style="color: var(--teal);">0</div>
+            <div class="metric-sub" id="metricPercentSub">0% chỉ tiêu</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Còn thiếu</div>
+            <div class="metric-value" id="metricTotalMissing" style="color: var(--error);">0</div>
+            <div class="metric-sub">Học sinh / Đoàn viên cần nộp thêm</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Lớp hoàn thành 100%</div>
+            <div class="metric-value" id="metricCompletedClasses" style="color: var(--gold);">0 / 0</div>
+            <div class="metric-sub">Lớp đã đạt hoặc vượt chỉ tiêu</div>
+          </div>
+        </div>
+
+        <!-- Class Progress Table Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <span>Tiến độ từng Lớp: <span id="progressWeekNameHeader" style="color: var(--gold);"></span></span>
+              <span id="progressClassCountBadge" class="badge-class" style="font-size: 12px;">0 lớp</span>
+            </h3>
+            <div class="filter-toolbar">
+              <select id="progressFilterStatus" class="input-text" onchange="filterClassProgressTable()" style="font-size: 12.5px;">
+                <option value="ALL">Tất cả trạng thái</option>
+                <option value="COMPLETED">Đã hoàn thành (≥100%)</option>
+                <option value="IN_PROGRESS">Đang nộp (&lt;100%)</option>
+                <option value="NOT_STARTED">Chưa có bài (0%)</option>
+              </select>
+              <input type="text" id="progressSearchClass" class="input-text" placeholder="Tìm tên lớp..." oninput="filterClassProgressTable()" style="width: 140px; font-size: 12.5px;">
+              <button onclick="loadProgressData(currentSelectedWeek)" class="btn btn-outline btn-sm" title="Làm mới tiến độ">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Làm mới
+              </button>
+            </div>
+          </div>
+
+          <div id="progressLoading" class="hidden" style="text-align: center; padding: 40px;">
+            <div class="spinner" style="width: 24px; height: 24px;"></div>
+            <div style="margin-top: 10px; font-size: 13.5px; color: var(--muted);">Đang tính toán tiến độ...</div>
+          </div>
+
+          <div id="progressTableWrapper" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 90px;">Lớp</th>
+                  <th style="width: 70px; text-align: center;">Sĩ số</th>
+                  <th style="width: 85px; text-align: center;">Đoàn viên</th>
+                  <th style="width: 110px; text-align: center;">Đối tượng</th>
+                  <th style="width: 85px; text-align: center;">Chỉ tiêu</th>
+                  <th style="width: 80px; text-align: center;">Đã nộp</th>
+                  <th style="width: 80px; text-align: center;">Còn thiếu</th>
+                  <th style="min-width: 180px;">Tiến độ</th>
+                  <th style="width: 120px; text-align: center;">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="progressTableBody">
+                <tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Chọn một tuần ở trên để xem tiến độ</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: SUBMISSIONS & STATS ================= -->
+      <div id="submissionsTab" class="hidden">
+        <!-- Week Statistics Cards -->
+        <div id="statsContainer" class="grid-stats"></div>
+
+        <!-- Class Breakdown -->
+        <div id="classStatsPanel" class="panel hidden" style="padding: 16px 20px; margin-bottom: 16px; background: #FAF9F6;">
+          <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Thống kê theo Lớp trong <span id="currentWeekTitle" style="color: var(--gold);">Tuần</span>:</div>
+          <div id="classBadgeList" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+        </div>
+
+        <!-- Submissions Table Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <span id="submissionPanelTitle">Danh sách bài nộp</span>
+              <span id="submissionCountBadge" class="badge-class" style="font-size: 12px;">0 bài</span>
+            </h3>
+            <div class="filter-toolbar">
+              <input type="text" id="searchInput" class="input-text" placeholder="Tìm tên hoặc lớp..." oninput="filterSubmissionsTable()" style="width: 180px;">
+              <button onclick="loadSubmissions(currentSelectedWeek)" class="btn btn-outline btn-sm" title="Làm mới danh sách">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Làm mới
+              </button>
+            </div>
+          </div>
+
+          <div id="submissionsLoading" class="hidden" style="text-align: center; padding: 40px;">
+            <div class="spinner" style="width: 24px; height: 24px;"></div>
+            <div style="margin-top: 10px; font-size: 13.5px; color: var(--muted);">Đang tải dữ liệu bài nộp...</div>
+          </div>
+
+          <div id="submissionsTableWrapper" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 55px; text-align: center;">STT</th>
+                  <th>Họ và tên</th>
+                  <th>Lớp</th>
+                  <th>Thời gian</th>
+                  <th>Hình ảnh / Minh chứng</th>
+                  <th style="width: 80px; text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="submissionsTableBody">
+                <tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">Chọn một tuần ở trên để xem chi tiết</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: CLASS MANAGEMENT & HEADCOUNT ================= -->
+      <div id="classesTab" class="hidden">
+        <!-- School Demographic Overview Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Tổng số lớp</div>
+            <div class="metric-value" id="classesTotalCount">0</div>
+            <div class="metric-sub">Lớp trong toàn trường</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Tổng sĩ số toàn trường</div>
+            <div class="metric-value" id="classesTotalSiSo" style="color: var(--teal);">0</div>
+            <div class="metric-sub">Học sinh</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Tổng số đoàn viên</div>
+            <div class="metric-value" id="classesTotalDoanVien" style="color: var(--gold);">0</div>
+            <div class="metric-sub" id="classesUnionRatio">0% trên tổng sĩ số</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <span>Danh sách Lớp, Sĩ số & Số đoàn viên</span>
+              <span id="classesSheetBadge" class="badge-class" style="font-size: 12px;">Google Sheet: DanhSachLop</span>
+            </h3>
+            <div class="filter-toolbar">
+              <input type="text" id="classesSearchInput" class="input-text" placeholder="Tìm kiếm lớp..." oninput="filterClassesTable()" style="width: 160px; font-size: 12.5px;">
+              <button onclick="openImportModal()" class="btn btn-outline btn-sm" title="Dán danh sách từ Excel hoặc Word">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Nhập từ Excel
+              </button>
+              <button onclick="openAddClassModal()" class="btn btn-primary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Thêm lớp
+              </button>
+              <button onclick="saveClassesList()" id="saveClassesBtn" class="btn btn-outline btn-sm" style="color: var(--teal); border-color: var(--teal);" title="Lưu các thay đổi lên Google Sheet">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Lưu vào Sheet
+              </button>
+            </div>
+          </div>
+
+          <div id="classesLoading" class="hidden" style="text-align: center; padding: 40px;">
+            <div class="spinner" style="width: 24px; height: 24px;"></div>
+            <div style="margin-top: 10px; font-size: 13.5px; color: var(--muted);">Đang tải danh sách lớp...</div>
+          </div>
+
+          <div id="classesTableWrapper" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">STT</th>
+                  <th>Tên Lớp</th>
+                  <th style="text-align: center; width: 120px;">Sĩ số lớp</th>
+                  <th style="text-align: center; width: 140px;">Số đoàn viên</th>
+                  <th style="text-align: center; width: 110px;">Tỷ lệ ĐV</th>
+                  <th>Ghi chú</th>
+                  <th style="width: 100px; text-align: center;">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="classesTableBody">
+                <tr><td colspan="7" style="text-align: center; color: var(--muted); padding: 30px;">Chưa có dữ liệu lớp. Hãy nhấn "Thêm lớp" hoặc "Nhập từ Excel".</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: CONFIGURATION ================= -->
+      <div id="configTab" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Cấu hình thông tin phong trào</h3>
+            <button onclick="saveConfig()" id="saveConfigBtn" class="btn btn-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Lưu cấu hình
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label for="cfgSchool">Tên trường (Hiển thị góc trên form)</label>
+            <input type="text" id="cfgSchool" class="input-text" style="width: 100%;">
+          </div>
+
+          <div class="form-group">
+            <label for="cfgTitle">Tiêu đề phong trào</label>
+            <textarea id="cfgTitle" class="input-text" rows="2" style="width: 100%; font-family: inherit;"></textarea>
+            <small class="help">Có thể xuống dòng để tiêu đề hiển thị đẹp hơn.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="cfgNote">Ghi chú / Khẩu hiệu nhỏ</label>
+            <input type="text" id="cfgNote" class="input-text" style="width: 100%;" placeholder="VD: KHKT 2026-2027">
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" id="cfgSubfolder" style="width: 17px; height: 17px;">
+              <span>Tạo thêm thư mục con theo <b>Lớp</b> trong từng Tuần trên Google Drive</span>
+            </label>
+            <small class="help">Khi bật, trong mỗi thư mục Tuần sẽ tự chia các thư mục con 12A1, 12A2, 12A3...</small>
+          </div>
+
+          <div class="form-group" style="margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+              <label style="font-weight: 700; color: var(--navy); font-size: 14.5px;">Danh sách Hoạt động / Phong trào thu ảnh:</label>
+              <button type="button" onclick="addActivityRow({})" class="btn btn-outline btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Thêm hoạt động mới
+              </button>
+            </div>
+            <small class="help" style="margin-bottom: 12px; display: block;">Mỗi hoạt động có thể thiết lập thời gian bắt đầu - kết thúc, chỉ tiêu (Cả lớp hoặc Đoàn viên) và ghi chú thể lệ. Dữ liệu sẽ tự động kẻ bảng executive đẹp trên tab <b>Config</b> của Google Sheet.</small>
+            <div id="weeksContainer" class="weeks-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 5: AUDIT LOGS ================= -->
+      <div id="logsTab" class="hidden">
+        <!-- Log Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Tổng số bản ghi nhật ký</div>
+            <div class="metric-value" id="logsMetricTotal" style="color: var(--navy);">0</div>
+            <div class="metric-sub">Lưu trữ trên sheet <b>Log</b></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Tổng lượt nộp trường</div>
+            <div class="metric-value" id="logsMetricStudents" style="color: var(--teal);">0</div>
+            <div class="metric-sub">Lưu trên sheet chính <b>DanhSachHocSinh</b></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Kiến trúc dữ liệu</div>
+            <div class="metric-value" style="font-size: 18px; color: var(--gold); padding-top: 6px;">3 Sheet tách biệt</div>
+            <div class="metric-sub">DanhSachHocSinh • Config • Log</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>
+              <span>Nhật ký hoạt động hệ thống</span>
+              <span id="logsSheetBadge" class="badge-class" style="font-size: 12px;">Google Sheet: Log</span>
+              <span id="logsCountBadge" class="badge-status-completed" style="font-size: 12px; margin-left: 6px;">0 bản ghi</span>
+            </h3>
+            <div class="filter-toolbar">
+              <input type="text" id="logsSearchInput" class="input-text" placeholder="Tìm theo người, lớp, nội dung..." oninput="filterLogsTable()" style="width: 220px; font-size: 12.5px;">
+              <select id="logsActionFilter" class="input-text" onchange="filterLogsTable()" style="font-size: 12.5px; min-width: 150px;">
+                <option value="ALL">Tất cả hành động</option>
+                <option value="Nộp bài">Nộp bài mới</option>
+                <option value="Xóa">Xóa bài nộp</option>
+                <option value="Cấu hình">Cấu hình & Phong trào</option>
+                <option value="Lớp">Quản lý Lớp</option>
+                <option value="Mật khẩu">Đổi mật khẩu</option>
+                <option value="Định dạng">Định dạng & Bảo trì</option>
+              </select>
+              <select id="logsLimitSelect" class="input-text" onchange="loadLogsData(this.value)" style="font-size: 12.5px; width: 110px;">
+                <option value="50">50 dòng</option>
+                <option value="100" selected>100 dòng</option>
+                <option value="200">200 dòng</option>
+                <option value="500">500 dòng</option>
+              </select>
+              <button onclick="loadLogsData()" class="btn btn-outline btn-sm" title="Làm mới nhật ký">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Làm mới
+              </button>
+              <button onclick="handleClearLogs()" id="clearLogsBtn" class="btn btn-outline btn-sm" style="color: var(--error); border-color: var(--error);" title="Dọn dẹp các dòng log cũ trên Google Sheet">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Dọn log cũ
+              </button>
+            </div>
+          </div>
+
+          <div id="logsLoading" class="hidden" style="text-align: center; padding: 40px;">
+            <div class="spinner" style="width: 24px; height: 24px;"></div>
+            <div style="margin-top: 10px; font-size: 13.5px; color: var(--muted);">Đang tải nhật ký hệ thống...</div>
+          </div>
+
+          <div id="logsTableWrapper" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">STT</th>
+                  <th style="width: 145px; text-align: center;">Thời gian</th>
+                  <th style="width: 140px; text-align: center;">Hành động</th>
+                  <th>Đối tượng / Học sinh</th>
+                  <th style="width: 80px; text-align: center;">Lớp</th>
+                  <th>Hoạt động / Phong trào</th>
+                  <th>Chi tiết thao tác</th>
+                  <th style="width: 100px; text-align: center;">Minh chứng</th>
+                  <th style="width: 95px; text-align: center;">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="logsTableBody">
+                <tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Nhấn vào tab hoặc bấm "Làm mới" để tải nhật ký hệ thống.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 6: TOOLS & SECURITY ================= -->
+      <div id="toolsTab" class="hidden">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Đổi mật khẩu trang Quản trị</h3>
+          </div>
+          <form onsubmit="handleChangePassword(event)" style="max-width: 450px;">
+            <div class="form-group">
+              <label for="currPass">Mật khẩu hiện tại</label>
+              <input type="password" id="currPass" class="input-text" style="width: 100%;" required>
+            </div>
+            <div class="form-group">
+              <label for="newPass">Mật khẩu mới</label>
+              <input type="password" id="newPass" class="input-text" style="width: 100%;" minlength="4" required>
+            </div>
+            <div class="form-group">
+              <label for="confirmPass">Xác nhận mật khẩu mới</label>
+              <input type="password" id="confirmPass" class="input-text" style="width: 100%;" minlength="4" required>
+            </div>
+            <button type="submit" id="changePassBtn" class="btn btn-primary">Cập nhật mật khẩu</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Bảo trì & Định dạng bảng Google Sheet</h3>
+          </div>
+          <p style="font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; margin: 0 0 16px;">
+            Hàm này sẽ tự động kẻ bảng, đóng băng dòng tiêu đề, tô màu xanh đậm, kẻ sọc so le và căn chỉnh cột cho tất cả các tab trên cả 2 bảng tính (Bảng tính Học sinh & Bảng tính Quản trị / Log).
+          </p>
+          <button onclick="formatAllSheets()" id="formatSheetsBtn" class="btn btn-outline">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Định dạng lại tất cả tab trong Sheet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PHOTO PREVIEW MODAL ================= -->
+    <div id="imageModal" class="modal-backdrop hidden" onclick="closeImageModal()">
+      <div class="modal-content preview-image-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h4 id="imageModalTitle">Xem ảnh</h4>
+          <button class="close-btn" onclick="closeImageModal()">&times;</button>
+        </div>
+        <div style="text-align: center;">
+          <img id="modalImg" src="" alt="Minh chứng">
+        </div>
+        <div style="margin-top: 14px; text-align: right;">
+          <a id="modalDirectLink" href="#" target="_blank" class="btn btn-outline btn-sm">Mở trên Google Drive</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ADD / EDIT CLASS MODAL ================= -->
+    <div id="classModal" class="modal-backdrop hidden" onclick="closeClassModal()">
+      <div class="modal-content" style="max-width: 440px;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h4 id="classModalTitle">Thêm Lớp Mới</h4>
+          <button class="close-btn" onclick="closeClassModal()">&times;</button>
+        </div>
+        <form onsubmit="handleSaveClassForm(event)" style="padding-top: 10px;">
+          <input type="hidden" id="modalClassOriginalName" value="">
+          <div class="form-group">
+            <label for="modalClassName">Tên lớp <span style="color: var(--error);">*</span></label>
+            <input type="text" id="modalClassName" class="input-text" placeholder="VD: 10A1, 11B2..." required style="width: 100%;">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label for="modalClassSiSo">Sĩ số học sinh</label>
+              <input type="number" id="modalClassSiSo" class="input-text" min="0" max="100" placeholder="VD: 45" required style="width: 100%;">
+            </div>
+            <div class="form-group">
+              <label for="modalClassDoanVien">Số đoàn viên</label>
+              <input type="number" id="modalClassDoanVien" class="input-text" min="0" max="100" placeholder="VD: 30" required style="width: 100%;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="modalClassNote">Ghi chú</label>
+            <input type="text" id="modalClassNote" class="input-text" placeholder="VD: Khối 10, Chuyên Toán..." style="width: 100%;">
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" onclick="closeClassModal()" class="btn btn-outline">Hủy</button>
+            <button type="submit" class="btn btn-primary">Xác nhận</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= IMPORT CLASSES EXCEL MODAL ================= -->
+    <div id="importModal" class="modal-backdrop hidden" onclick="closeImportModal()">
+      <div class="modal-content" style="max-width: 580px;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h4>Nhập danh sách Lớp từ Excel / Word</h4>
+          <button class="close-btn" onclick="closeImportModal()">&times;</button>
+        </div>
+        <div style="padding-top: 10px;">
+          <p style="font-size: 13.5px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 12px;">
+            Sao chép (Copy) các cột từ Excel hoặc Word rồi dán vào ô bên dưới. Mỗi dòng là 1 lớp theo mẫu:
+            <br><b>Tên Lớp [Tab hoặc dấu phẩy] Sĩ số [Tab] Số đoàn viên</b>
+          </p>
+          <div style="background: rgba(28,37,65,0.04); border-radius: 8px; padding: 10px 14px; font-family: monospace; font-size: 12.5px; margin-bottom: 14px; color: var(--navy);">
+            10A1&nbsp;&nbsp;&nbsp;&nbsp;45&nbsp;&nbsp;&nbsp;&nbsp;30<br>
+            10A2&nbsp;&nbsp;&nbsp;&nbsp;44&nbsp;&nbsp;&nbsp;&nbsp;28<br>
+            11B1&nbsp;&nbsp;&nbsp;&nbsp;42&nbsp;&nbsp;&nbsp;&nbsp;35
+          </div>
+          <textarea id="importTextarea" class="input-text" rows="8" placeholder="Dán dữ liệu từ bảng tính Excel vào đây..." style="width: 100%; font-family: monospace; font-size: 13px;"></textarea>
+          <div id="importErrorMsg" style="margin-top: 8px; font-size: 12.5px; color: var(--error);"></div>
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+            <button type="button" onclick="closeImportModal()" class="btn btn-outline">Đóng</button>
+            <button type="button" onclick="executeImportClasses()" id="importSubmitBtn" class="btn btn-primary">
+              Nạp dữ liệu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var adminToken = '';
+      var currentOverview = null;
+      var currentSelectedWeek = '';
+      var currentWeekTargetType = 'UNION';
+      var currentWeekTargetLabel = 'Đoàn viên';
+      var rawSubmissions = [];
+      var rawLogs = [];
+      var classList = [];
+      var currentProgressList = [];
+      var currentProgressSummary = null;
+
+      function showBanner(containerId, type, message) {
+        var el = document.getElementById(containerId);
+        if (!el) return;
+        el.innerHTML = '<div class="banner banner-' + type + '">' + message + '</div>';
+        setTimeout(function() {
+          // Chỉ tự ẩn success
+          if (type === 'success') el.innerHTML = '';
+        }, 5000);
+      }
+
+      // Check session on load & nạp trước URL form nộp bài
+      window.onload = function() {
+        // Chủ động lấy URL Web App để nút Xem Form và nút Quay lại luôn hoạt động
+        try {
+          google.script.run
+            .withSuccessHandler(function(url) {
+              if (url) {
+                var base = url.split('?')[0];
+                var formLink = document.getElementById('formLink');
+                if (formLink) formLink.href = base;
+                var loginBackLink = document.getElementById('loginBackLink');
+                if (loginBackLink) loginBackLink.href = base;
+              }
+            })
+            .getScriptServiceUrl();
+        } catch (e) {}
+
+        var saved = sessionStorage.getItem('admin_pass');
+        if (saved) {
+          document.getElementById('adminPass').value = saved;
+          doLogin(saved);
+        }
+      };
+
+      // Xử lý chuyển hướng sang Form nộp bài không bị lỗi sandbox iframe googleusercontent
+      function handleGoToForm(e) {
+        var formLink = document.getElementById('formLink') || document.getElementById('loginBackLink');
+        var targetUrl = (formLink && formLink.href) || '';
+
+        // Nếu targetUrl là URL Apps Script hợp lệ (chứa script.google.com, không chứa sandbox googleusercontent)
+        if (targetUrl && targetUrl !== '#' && targetUrl.indexOf('script.google.com') !== -1 && targetUrl.indexOf('googleusercontent') === -1 && targetUrl.indexOf('<?=') === -1) {
+          return true;
+        }
+
+        if (e && e.preventDefault) e.preventDefault();
+
+        if (currentOverview && currentOverview.formUrl && currentOverview.formUrl.indexOf('script.google.com') !== -1) {
+          window.top.location.href = currentOverview.formUrl;
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(function(url) {
+            if (url && url.indexOf('script.google.com') !== -1) {
+              window.top.location.href = url.split('?')[0];
+            } else {
+              alert('Không tìm thấy URL Form nộp bài. Vui lòng mở lại trang từ liên kết Web App đã triển khai.');
+            }
+          })
+          .withFailureHandler(function(err) {
+            alert('Lỗi lấy liên kết Form: ' + (err.message || err));
+          })
+          .getScriptServiceUrl();
+      }
+
+      function handleLogin(e) {
+        e.preventDefault();
+        var pass = document.getElementById('adminPass').value.trim();
+        doLogin(pass);
+      }
+
+      function doLogin(pass) {
+        var btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang kiểm tra...';
+        document.getElementById('loginMsg').innerHTML = '';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = 'Đăng nhập';
+            if (res.success) {
+              adminToken = pass;
+              sessionStorage.setItem('admin_pass', pass);
+              document.getElementById('loginView').classList.add('hidden');
+              document.getElementById('adminDashboard').classList.remove('hidden');
+              loadOverview();
+            } else {
+              showBanner('loginMsg', 'error', res.message || 'Mật khẩu không đúng!');
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Đăng nhập';
+            showBanner('loginMsg', 'error', 'Lỗi kết nối: ' + (err.message || err));
+          })
+          .verifyAdminPassword(pass);
+      }
+
+      function handleLogout() {
+        adminToken = '';
+        sessionStorage.removeItem('admin_pass');
+        document.getElementById('adminDashboard').classList.add('hidden');
+        document.getElementById('loginView').classList.remove('hidden');
+        document.getElementById('adminPass').value = '';
+      }
+
+      function switchTab(tabId) {
+        var tabs = ['progressTab', 'submissionsTab', 'classesTab', 'configTab', 'logsTab', 'toolsTab'];
+        tabs.forEach(function(t) {
+          var el = document.getElementById(t);
+          if (el) el.classList.add('hidden');
+        });
+        var activeEl = document.getElementById(tabId);
+        if (activeEl) activeEl.classList.remove('hidden');
+
+        var btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        if (event && event.currentTarget) {
+          event.currentTarget.classList.add('active');
+        }
+
+        if (tabId === 'progressTab') {
+          if (currentSelectedWeek) loadProgressData(currentSelectedWeek);
+        } else if (tabId === 'classesTab') {
+          renderClassesTable();
+        } else if (tabId === 'logsTab') {
+          loadLogsData();
+        }
+      }
+
+      // Load Tổng quan, Danh sách tuần & Lớp
+      function loadOverview() {
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (!res.success) {
+              showBanner('globalMsg', 'error', res.message);
+              return;
+            }
+            currentOverview = res;
+            classList = res.classes || [];
+
+            // Cập nhật links Sheet, Drive & Form
+            document.getElementById('sheetLink').href = res.spreadsheetUrl;
+            if (document.getElementById('adminSheetLink')) {
+              document.getElementById('adminSheetLink').href = res.adminSpreadsheetUrl || res.spreadsheetUrl;
+            }
+            document.getElementById('driveLink').href = res.driveFolderUrl;
+            if (res.formUrl) {
+              var formLink = document.getElementById('formLink');
+              if (formLink) formLink.href = res.formUrl;
+              var loginBackLink = document.getElementById('loginBackLink');
+              if (loginBackLink) loginBackLink.href = res.formUrl;
+            }
+            document.getElementById('navTitle').textContent = res.config.tenTruong || 'Bảng Quản Trị';
+
+            // Cập nhật số liệu tổng quan của Sheet chính và Log
+            var elMainCount = document.getElementById('logsMetricStudents');
+            if (elMainCount) elMainCount.textContent = (res.mainStudentCount || 0).toLocaleString('vi-VN');
+            var elLogCount = document.getElementById('logsMetricTotal');
+            if (elLogCount) elLogCount.textContent = (res.logCount || 0).toLocaleString('vi-VN');
+
+            // Điền tab Cấu hình
+            document.getElementById('cfgSchool').value = res.config.tenTruong || '';
+            document.getElementById('cfgTitle').value = res.config.tieuDe || '';
+            document.getElementById('cfgNote').value = res.config.ghiChu || '';
+            document.getElementById('cfgSubfolder').checked = !!res.config.subfolderByClass;
+
+            renderWeeksConfig(res.config.weeks || []);
+
+            // Render Thống kê tuần
+            renderStatsCards(res.weekStats || []);
+
+            // Nạp tuần vào select của tab Tiến độ
+            populateProgressWeekSelect(res.config.weeks || []);
+
+            // Render danh sách lớp trong tab Quản lý Lớp
+            renderClassesTable();
+
+            // Chọn tuần đầu tiên mặc định
+            if (res.weekStats && res.weekStats.length > 0) {
+              var targetWeek = currentSelectedWeek || res.weekStats[0].name;
+              selectWeek(targetWeek);
+            }
+          })
+          .withFailureHandler(function(err) {
+            showBanner('globalMsg', 'error', 'Không nạp được tổng quan: ' + err.toString());
+          })
+          .getAdminOverview(adminToken);
+      }
+
+      function populateProgressWeekSelect(weeks) {
+        var sel = document.getElementById('progressWeekSelect');
+        if (!sel) return;
+        sel.innerHTML = '';
+        weeks.forEach(function(w) {
+          var name = typeof w === 'object' ? w.name : w;
+          var sDate = typeof w === 'object' ? (w.startDate || '') : '';
+          var eDate = typeof w === 'object' ? (w.endDate || '') : '';
+          var opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = name + (sDate && eDate ? ' (' + sDate + ' - ' + eDate + ')' : '');
+          sel.appendChild(opt);
+        });
+        if (currentSelectedWeek) sel.value = currentSelectedWeek;
+      }
+
+      function handleProgressWeekChange(weekName) {
+        selectWeek(weekName);
+      }
+
+      function renderStatsCards(stats) {
+        var container = document.getElementById('statsContainer');
+        container.innerHTML = '';
+
+        stats.forEach(function(item) {
+          var card = document.createElement('div');
+          card.className = 'card-stat' + (item.name === currentSelectedWeek ? ' selected' : '');
+          card.id = 'statCard_' + item.name.replace(/\s+/g, '_');
+          card.onclick = function() { selectWeek(item.name); };
+          var targetBadge = item.targetLabel
+            ? ('<span class="badge-class" style="margin-top: 6px; font-size: 11px; background: rgba(212,160,23,0.12); color: #B38600;">' + item.targetLabel + '</span>')
+            : '';
+          var dateRange = (item.startDate || item.endDate)
+            ? ('<div style="font-size: 11px; color: var(--muted); margin-top: 5px;">📅 ' + (item.startDate || '...') + ' - ' + (item.endDate || '...') + '</div>')
+            : '';
+          card.innerHTML =
+            '<div class="title" style="word-break: break-word; line-height: 1.35;">' + item.name + '</div>' +
+            '<div class="count">' + item.count + ' <small>bài nộp</small></div>' +
+            dateRange +
+            targetBadge;
+          container.appendChild(card);
+        });
+      }
+
+      function selectWeek(weekName) {
+        currentSelectedWeek = weekName;
+        document.querySelectorAll('.card-stat').forEach(function(c) { c.classList.remove('selected'); });
+        var activeCard = document.getElementById('statCard_' + weekName.replace(/\s+/g, '_'));
+        if (activeCard) activeCard.classList.add('selected');
+
+        var sel = document.getElementById('progressWeekSelect');
+        if (sel && sel.value !== weekName) sel.value = weekName;
+
+        document.getElementById('submissionPanelTitle').textContent = 'Danh sách bài nộp: ' + weekName;
+        document.getElementById('currentWeekTitle').textContent = weekName;
+        document.getElementById('progressWeekNameHeader').textContent = weekName;
+
+        loadSubmissions(weekName);
+      }
+
+      function loadSubmissions(weekName) {
+        if (!weekName) return;
+        document.getElementById('submissionsLoading').classList.remove('hidden');
+        document.getElementById('submissionsTableWrapper').classList.add('hidden');
+        document.getElementById('classStatsPanel').classList.add('hidden');
+
+        // Đồng thời tải cả dữ liệu tiến độ phong trào
+        loadProgressData(weekName);
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            document.getElementById('submissionsLoading').classList.add('hidden');
+            document.getElementById('submissionsTableWrapper').classList.remove('hidden');
+
+            if (!res.success) {
+              showBanner('globalMsg', 'error', res.message);
+              return;
+            }
+
+            rawSubmissions = res.submissions || [];
+            document.getElementById('submissionCountBadge').textContent = rawSubmissions.length + ' bài';
+
+            // Hiển thị thống kê theo lớp
+            renderClassStats(res.stats.classStats || {});
+
+            renderSubmissionsTable(rawSubmissions);
+          })
+          .withFailureHandler(function(err) {
+            document.getElementById('submissionsLoading').classList.add('hidden');
+            showBanner('globalMsg', 'error', 'Lỗi tải bài nộp: ' + err.toString());
+          })
+          .getAdminSubmissions(adminToken, weekName);
+      }
+
+      // ================= TIẾN ĐỘ PHONG TRÀO & TÍNH TOÁN CHỈ TIÊU =================
+      function loadProgressData(weekName) {
+        if (!weekName) return;
+        var loadingEl = document.getElementById('progressLoading');
+        var tableWrap = document.getElementById('progressTableWrapper');
+        if (loadingEl) loadingEl.classList.remove('hidden');
+        if (tableWrap) tableWrap.classList.add('hidden');
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (tableWrap) tableWrap.classList.remove('hidden');
+
+            if (!res.success) {
+              showBanner('globalMsg', 'error', res.message);
+              return;
+            }
+
+            currentWeekTargetType = res.targetType || 'UNION';
+            currentWeekTargetLabel = res.targetLabel || 'Đoàn viên';
+            currentProgressList = res.classProgress || [];
+            currentProgressSummary = res.progressSummary || null;
+
+            updateWeekTargetBadgeUI(currentWeekTargetType, currentWeekTargetLabel);
+            updateActivityInfoBar(res);
+            renderProgressMetrics(res.progressSummary);
+            renderClassProgressTable(currentProgressList);
+          })
+          .withFailureHandler(function(err) {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            showBanner('globalMsg', 'error', 'Lỗi tải tiến độ: ' + err.toString());
+          })
+          .getAdminSubmissions(adminToken, weekName);
+      }
+
+      function updateActivityInfoBar(res) {
+        var row = document.getElementById('adminActInfoRow');
+        var nameEl = document.getElementById('adminActFullName');
+        var dateEl = document.getElementById('adminActDurationText');
+        var statusBadge = document.getElementById('adminActStatusBadge');
+        if (!row) return;
+
+        row.style.display = 'block';
+        if (nameEl) nameEl.textContent = res.weekName || '';
+        if (dateEl) {
+          if (res.startDate || res.endDate) {
+            dateEl.textContent = (res.startDate || '...') + ' ➔ ' + (res.endDate || '...');
+          } else {
+            dateEl.textContent = 'Không giới hạn thời gian';
+          }
+        }
+        if (statusBadge) {
+          var st = getActivityStatus(res.startDate, res.endDate);
+          statusBadge.textContent = st.icon + ' ' + st.label;
+          statusBadge.style.background = st.status === 'ACTIVE' ? '#DCFCE7' : (st.status === 'UPCOMING' ? '#FEF3C7' : '#F1F5F9');
+          statusBadge.style.color = st.status === 'ACTIVE' ? '#15803D' : (st.status === 'UPCOMING' ? '#B45309' : '#64748B');
+        }
+      }
+
+      function updateWeekTargetBadgeUI(type, label) {
+        var badge = document.getElementById('currentWeekTargetBadge');
+        var btnText = document.getElementById('toggleTargetBtnText');
+        if (!badge) return;
+
+        var isAll = (type === 'ALL');
+        badge.textContent = 'Yêu cầu: ' + (label || (isAll ? 'Cả lớp' : 'Đoàn viên'));
+        if (isAll) {
+          badge.className = 'badge-status-completed';
+          badge.style.background = 'rgba(43, 89, 63, 0.12)';
+          badge.style.color = '#2B593F';
+          if (btnText) btnText.textContent = 'Chuyển sang Đoàn viên';
+        } else {
+          badge.className = 'badge-status-inprogress';
+          badge.style.background = 'rgba(212, 160, 23, 0.14)';
+          badge.style.color = '#B38600';
+          if (btnText) btnText.textContent = 'Chuyển sang Cả lớp';
+        }
+      }
+
+      function toggleCurrentWeekTarget() {
+        if (!currentSelectedWeek) {
+          alert('Vui lòng chọn một tuần hoạt động trước.');
+          return;
+        }
+
+        var newType = (currentWeekTargetType === 'ALL') ? 'UNION' : 'ALL';
+        var newLabel = (newType === 'ALL') ? 'Cả lớp' : 'Đoàn viên';
+
+        var btn = document.getElementById('toggleTargetTypeBtn');
+        btn.disabled = true;
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              loadOverview(); // nạp lại để cập nhật thẻ thống kê
+              loadProgressData(currentSelectedWeek);
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            showBanner('globalMsg', 'error', 'Lỗi chuyển yêu cầu: ' + err.toString());
+          })
+          .adminSetWeekTargetType(adminToken, currentSelectedWeek, newType);
+      }
+
+      function renderProgressMetrics(summary) {
+        if (!summary) return;
+        document.getElementById('metricTotalTarget').textContent = summary.totalTarget || 0;
+        document.getElementById('metricTargetNote').textContent = 'Yêu cầu: ' + (summary.targetLabel || 'Đoàn viên') + ' (' + (summary.totalClasses || 0) + ' lớp)';
+        document.getElementById('metricTotalSubmitted').textContent = summary.totalSubmitted || 0;
+        document.getElementById('metricPercentSub').textContent = (summary.overallPercentage || 0) + '% chỉ tiêu';
+        document.getElementById('metricTotalMissing').textContent = summary.totalMissingStudents || 0;
+        document.getElementById('metricCompletedClasses').textContent = (summary.completedClasses || 0) + ' / ' + (summary.totalClasses || 0);
+      }
+
+      function renderClassProgressTable(list) {
+        var tbody = document.getElementById('progressTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Chưa có dữ liệu tiến độ.</td></tr>';
+          document.getElementById('progressClassCountBadge').textContent = '0 lớp';
+          return;
+        }
+
+        document.getElementById('progressClassCountBadge').textContent = list.length + ' lớp';
+
+        list.forEach(function(item) {
+          var tr = document.createElement('tr');
+          var percent = item.percentage;
+          var barClass = '';
+          var statusBadge = '';
+
+          if (item.status === 'EXCEEDED') {
+            barClass = 'exceeded';
+            statusBadge = '<span class="badge-status-exceeded">Vượt ' + percent + '%</span>';
+          } else if (item.status === 'COMPLETED') {
+            barClass = 'completed';
+            statusBadge = '<span class="badge-status-completed">Hoàn thành</span>';
+          } else if (item.status === 'IN_PROGRESS') {
+            barClass = 'inprogress';
+            statusBadge = '<span class="badge-status-inprogress">' + percent + '%</span>';
+          } else if (item.status === 'UNLISTED') {
+            barClass = 'inprogress';
+            statusBadge = '<span class="badge-status-unlisted">Chưa định danh</span>';
+          } else {
+            barClass = 'notstarted';
+            statusBadge = '<span class="badge-status-notstarted">Chưa nộp (0%)</span>';
+          }
+
+          var targetDisplay = currentWeekTargetType === 'ALL'
+            ? ('<span style="font-weight: 600;">' + item.siSo + '</span> <small style="color: var(--muted);">(Cả lớp)</small>')
+            : ('<span style="font-weight: 600;">' + item.soDoanVien + '</span> <small style="color: var(--muted);">(Đoàn viên)</small>');
+
+          var targetAudienceBadge = currentWeekTargetType === 'ALL'
+            ? '<span class="badge-class" style="background: rgba(43,89,63,0.1); color: #2B593F; font-size: 11px;">Cả lớp</span>'
+            : '<span class="badge-class" style="background: rgba(212,160,23,0.12); color: #B38600; font-size: 11px;">Đoàn viên</span>';
+
+          var missingDisplay = item.missingCount > 0
+            ? ('<span style="color: var(--error); font-weight: 700;">' + item.missingCount + '</span>')
+            : '<span style="color: var(--teal); font-weight: 600;">0</span>';
+
+          var progressBarWidth = Math.min(percent, 100);
+
+          tr.innerHTML =
+            '<td style="font-weight: 700; color: var(--navy);">' + item.className + '</td>' +
+            '<td style="text-align: center;">' + (item.siSo || '-') + '</td>' +
+            '<td style="text-align: center;">' + (item.soDoanVien || '-') + '</td>' +
+            '<td style="text-align: center;">' + targetAudienceBadge + '</td>' +
+            '<td style="text-align: center; font-weight: 700;">' + item.targetCount + '</td>' +
+            '<td style="text-align: center; font-weight: 700; color: var(--teal);">' + item.submittedCount + '</td>' +
+            '<td style="text-align: center;">' + missingDisplay + '</td>' +
+            '<td>' +
+              '<div class="progress-container">' +
+                '<div class="progress-bar ' + barClass + '" style="width: ' + progressBarWidth + '%;"></div>' +
+              '</div>' +
+              '<div style="font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; display: flex; justify-content: space-between;">' +
+                '<span>' + item.submittedCount + ' / ' + item.targetCount + '</span>' +
+                '<span><b>' + percent + '%</b></span>' +
+              '</div>' +
+            '</td>' +
+            '<td style="text-align: center;">' + statusBadge + '</td>';
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filterClassProgressTable() {
+        var statusFilter = document.getElementById('progressFilterStatus').value;
+        var query = document.getElementById('progressSearchClass').value.toLowerCase().trim();
+
+        var filtered = currentProgressList.filter(function(item) {
+          // Lọc theo từ khóa
+          if (query && (item.className || '').toLowerCase().indexOf(query) < 0) {
+            return false;
+          }
+          // Lọc theo trạng thái
+          if (statusFilter === 'COMPLETED') {
+            return item.status === 'COMPLETED' || item.status === 'EXCEEDED';
+          } else if (statusFilter === 'IN_PROGRESS') {
+            return item.status === 'IN_PROGRESS';
+          } else if (statusFilter === 'NOT_STARTED') {
+            return item.status === 'NOT_STARTED';
+          }
+          return true;
+        });
+
+        renderClassProgressTable(filtered);
+      }
+
+      function copyZaloReport() {
+        if (!currentProgressList || currentProgressList.length === 0) {
+          alert('Chưa có dữ liệu tiến độ để sao chép.');
+          return;
+        }
+
+        var week = currentSelectedWeek;
+        var summary = currentProgressSummary || {};
+        var school = (currentOverview && currentOverview.config && currentOverview.config.tenTruong) || 'ĐOÀN TRƯỜNG';
+
+        var lines = [];
+        lines.push('📢 BÁO CÁO TIẾN ĐỘ THU ẢNH MINH CHỨNG - ' + week.toUpperCase());
+        lines.push('🏫 ' + school);
+        var dateEl = document.getElementById('adminActDurationText');
+        if (dateEl && dateEl.textContent && dateEl.textContent !== 'Không giới hạn thời gian') {
+          lines.push('⏱️ Thời gian thực hiện: ' + dateEl.textContent);
+        }
+        lines.push('📌 Yêu cầu đối tượng: ' + (currentWeekTargetLabel || 'Đoàn viên'));
+        lines.push('------------------------------------');
+        lines.push('📊 TỔNG QUAN TOÀN TRƯỜNG:');
+        lines.push('• Đã nộp: ' + (summary.totalSubmitted || 0) + ' / ' + (summary.totalTarget || 0) + ' (' + (summary.overallPercentage || 0) + '%)');
+        lines.push('• Còn thiếu: ' + (summary.totalMissingStudents || 0) + ' học sinh/đoàn viên');
+        lines.push('• Lớp hoàn thành: ' + (summary.completedClasses || 0) + ' / ' + (summary.totalClasses || 0) + ' lớp');
+        lines.push('------------------------------------');
+        lines.push('📋 TIẾN ĐỘ CHI TIẾT TỪNG LỚP:');
+
+        currentProgressList.forEach(function(item) {
+          var icon = (item.status === 'COMPLETED' || item.status === 'EXCEEDED') ? '✅' : (item.submittedCount > 0 ? '⏳' : '❌');
+          var missingText = item.missingCount > 0 ? (' (Thiếu ' + item.missingCount + ')') : ' (Đạt)';
+          lines.push(icon + ' ' + item.className + ': ' + item.submittedCount + '/' + item.targetCount + ' (' + item.percentage + '%)' + missingText);
+        });
+
+        lines.push('------------------------------------');
+        lines.push('⏰ Đề nghị các lớp chưa hoàn thành nhắc nhở các bạn khẩn trương nộp đủ!');
+
+        var fullReport = lines.join('\n');
+        navigator.clipboard.writeText(fullReport).then(function() {
+          showBanner('globalMsg', 'success', 'Đã sao chép nội dung báo cáo Zalo vào Clipboard! Bạn có thể dán ngay vào Zalo.');
+        }).catch(function() {
+          alert('Không thể tự sao chép vào clipboard. Vui lòng cho phép quyền.');
+        });
+      }
+
+      function renderClassStats(classStats) {
+        var badgeList = document.getElementById('classBadgeList');
+        badgeList.innerHTML = '';
+        var classes = Object.keys(classStats);
+        if (classes.length === 0) {
+          document.getElementById('classStatsPanel').classList.add('hidden');
+          return;
+        }
+
+        classes.sort();
+        classes.forEach(function(cls) {
+          var badge = document.createElement('span');
+          badge.className = 'badge-class';
+          badge.style.cursor = 'pointer';
+          badge.title = 'Nhấn để lọc riêng lớp ' + cls;
+          badge.textContent = cls + ': ' + classStats[cls] + ' bài';
+          badge.onclick = function() {
+            document.getElementById('searchInput').value = cls;
+            filterSubmissionsTable();
+          };
+          badgeList.appendChild(badge);
+        });
+        document.getElementById('classStatsPanel').classList.remove('hidden');
+      }
+
+      function renderSubmissionsTable(list) {
+        var tbody = document.getElementById('submissionsTableBody');
+        tbody.innerHTML = '';
+
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">Chưa có bài nộp nào trong tuần này.</td></tr>';
+          return;
+        }
+
+        list.forEach(function(sub, idx) {
+          var tr = document.createElement('tr');
+          var linkBtn = sub.fileUrl
+            ? '<button onclick="openImagePreview(\'' + sub.fileUrl + '\', \'' + sub.fullName + ' - ' + sub.className + (sub.stt ? ' (STT: ' + sub.stt + ')' : '') + '\')" class="btn btn-outline btn-sm">Xem ảnh</button>'
+            : '<span style="color: var(--muted);">Không có link</span>';
+
+          var sttDisplay = (sub.stt !== undefined && sub.stt !== null && sub.stt !== '')
+            ? ('<span class="badge-class" style="background: rgba(28,37,65,0.08); color: var(--ink); font-weight: 700;">' + sub.stt + '</span>')
+            : ('<span style="color: var(--muted);">' + (idx + 1) + '</span>');
+
+          tr.innerHTML =
+            '<td style="text-align: center;">' + sttDisplay + '</td>' +
+            '<td style="font-weight: 600;">' + sub.fullName + '</td>' +
+            '<td><span class="badge-class">' + sub.className + '</span></td>' +
+            '<td style="white-space: nowrap; color: var(--ink-soft); font-size: 12.5px;">' + sub.timestamp + '</td>' +
+            '<td>' + linkBtn + '</td>' +
+            '<td style="text-align: center;">' +
+              '<button onclick="confirmDeleteSubmission(' + sub.rowIndex + ', \'' + sub.fullName + '\')" class="btn btn-danger btn-sm" title="Xóa bài nộp này khỏi Google Sheet">' +
+                '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filterSubmissionsTable() {
+        var query = document.getElementById('searchInput').value.toLowerCase().trim();
+        if (!query) {
+          renderSubmissionsTable(rawSubmissions);
+          return;
+        }
+        var filtered = rawSubmissions.filter(function(s) {
+          return (s.fullName || '').toLowerCase().indexOf(query) >= 0 ||
+                 (s.className || '').toLowerCase().indexOf(query) >= 0 ||
+                 (s.stt !== undefined && s.stt !== null ? s.stt.toString() : '').indexOf(query) >= 0 ||
+                 (s.timestamp || '').toLowerCase().indexOf(query) >= 0;
+        });
+        renderSubmissionsTable(filtered);
+      }
+
+      function confirmDeleteSubmission(rowIndex, name) {
+        if (!confirm('Bạn có chắc muốn xóa bài nộp của "' + name + '" khỏi Google Sheet? Thao tác này sẽ xóa hàng trên Sheet.')) {
+          return;
+        }
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              loadSubmissions(currentSelectedWeek);
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            showBanner('globalMsg', 'error', 'Lỗi xóa bài: ' + err.toString());
+          })
+          .adminDeleteSubmission(adminToken, currentSelectedWeek, rowIndex);
+      }
+
+      // ================= QUẢN LÝ LỚP & SĨ SỐ =================
+      function renderClassesTable() {
+        var tbody = document.getElementById('classesTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        var totalSiSo = 0;
+        var totalDoanVien = 0;
+
+        if (!classList || classList.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--muted); padding: 30px;">Chưa có dữ liệu lớp. Hãy nhấn "Thêm lớp" hoặc "Nhập từ Excel".</td></tr>';
+          updateClassTotals(0, 0, 0);
+          return;
+        }
+
+        classList.forEach(function(cls, idx) {
+          var siSo = cls.siSo || 0;
+          var doanVien = cls.soDoanVien || 0;
+          totalSiSo += siSo;
+          totalDoanVien += doanVien;
+          var ratio = siSo > 0 ? Math.round((doanVien / siSo) * 100) : 0;
+
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td style="text-align: center; color: var(--muted);">' + (idx + 1) + '</td>' +
+            '<td style="font-weight: 700; color: var(--navy);">' + cls.className + '</td>' +
+            '<td style="text-align: center; font-weight: 600;">' + siSo + '</td>' +
+            '<td style="text-align: center; font-weight: 600; color: var(--gold);">' + doanVien + '</td>' +
+            '<td style="text-align: center; color: var(--ink-soft); font-size: 12.5px;">' + ratio + '%</td>' +
+            '<td style="color: var(--ink-soft); font-size: 13px;">' + (cls.ghiChu || '-') + '</td>' +
+            '<td style="text-align: center;">' +
+              '<button onclick="openEditClassModal(\'' + cls.className + '\')" class="btn btn-outline btn-sm" style="padding: 3px 8px; margin-right: 4px;" title="Chỉnh sửa">' +
+                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
+              '</button>' +
+              '<button onclick="deleteClass(\'' + cls.className + '\')" class="btn btn-danger btn-sm" style="padding: 3px 8px;" title="Xóa lớp">' +
+                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+
+        updateClassTotals(classList.length, totalSiSo, totalDoanVien);
+      }
+
+      function updateClassTotals(count, siSo, doanVien) {
+        document.getElementById('classesTotalCount').textContent = count;
+        document.getElementById('classesTotalSiSo').textContent = siSo;
+        document.getElementById('classesTotalDoanVien').textContent = doanVien;
+        var ratio = siSo > 0 ? Math.round((doanVien / siSo) * 100) : 0;
+        document.getElementById('classesUnionRatio').textContent = ratio + '% trên tổng sĩ số';
+      }
+
+      function filterClassesTable() {
+        var query = document.getElementById('classesSearchInput').value.toLowerCase().trim();
+        var tbody = document.getElementById('classesTableBody');
+        tbody.innerHTML = '';
+
+        var filtered = classList.filter(function(cls) {
+          return (cls.className || '').toLowerCase().indexOf(query) >= 0 ||
+                 (cls.ghiChu || '').toLowerCase().indexOf(query) >= 0;
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--muted); padding: 30px;">Không tìm thấy lớp phù hợp.</td></tr>';
+          return;
+        }
+
+        filtered.forEach(function(cls, idx) {
+          var siSo = cls.siSo || 0;
+          var doanVien = cls.soDoanVien || 0;
+          var ratio = siSo > 0 ? Math.round((doanVien / siSo) * 100) : 0;
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td style="text-align: center; color: var(--muted);">' + (idx + 1) + '</td>' +
+            '<td style="font-weight: 700; color: var(--navy);">' + cls.className + '</td>' +
+            '<td style="text-align: center; font-weight: 600;">' + siSo + '</td>' +
+            '<td style="text-align: center; font-weight: 600; color: var(--gold);">' + doanVien + '</td>' +
+            '<td style="text-align: center; color: var(--ink-soft); font-size: 12.5px;">' + ratio + '%</td>' +
+            '<td style="color: var(--ink-soft); font-size: 13px;">' + (cls.ghiChu || '-') + '</td>' +
+            '<td style="text-align: center;">' +
+              '<button onclick="openEditClassModal(\'' + cls.className + '\')" class="btn btn-outline btn-sm" style="padding: 3px 8px; margin-right: 4px;" title="Chỉnh sửa">' +
+                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
+              '</button>' +
+              '<button onclick="deleteClass(\'' + cls.className + '\')" class="btn btn-danger btn-sm" style="padding: 3px 8px;" title="Xóa lớp">' +
+                '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>' +
+            '</td>';
+          tbody.appendChild(tr);
+        });
+      }
+
+      function openAddClassModal() {
+        document.getElementById('classModalTitle').textContent = 'Thêm Lớp Mới';
+        document.getElementById('modalClassOriginalName').value = '';
+        document.getElementById('modalClassName').value = '';
+        document.getElementById('modalClassSiSo').value = '45';
+        document.getElementById('modalClassDoanVien').value = '30';
+        document.getElementById('modalClassNote').value = '';
+        document.getElementById('classModal').classList.remove('hidden');
+      }
+
+      function openEditClassModal(className) {
+        var found = classList.find(function(c) { return c.className === className; });
+        if (!found) return;
+        document.getElementById('classModalTitle').textContent = 'Chỉnh sửa: ' + className;
+        document.getElementById('modalClassOriginalName').value = className;
+        document.getElementById('modalClassName').value = found.className;
+        document.getElementById('modalClassSiSo').value = found.siSo || 0;
+        document.getElementById('modalClassDoanVien').value = found.soDoanVien || 0;
+        document.getElementById('modalClassNote').value = found.ghiChu || '';
+        document.getElementById('classModal').classList.remove('hidden');
+      }
+
+      function closeClassModal() {
+        document.getElementById('classModal').classList.add('hidden');
+      }
+
+      function handleSaveClassForm(e) {
+        e.preventDefault();
+        var origName = document.getElementById('modalClassOriginalName').value.trim();
+        var name = document.getElementById('modalClassName').value.trim();
+        var siSo = parseInt(document.getElementById('modalClassSiSo').value, 10) || 0;
+        var doanVien = parseInt(document.getElementById('modalClassDoanVien').value, 10) || 0;
+        var note = document.getElementById('modalClassNote').value.trim();
+
+        if (!name) {
+          alert('Tên lớp không được để trống.');
+          return;
+        }
+
+        if (doanVien > siSo && siSo > 0) {
+          if (!confirm('Số đoàn viên (' + doanVien + ') đang lớn hơn sĩ số (' + siSo + '). Bạn vẫn muốn tiếp tục?')) {
+            return;
+          }
+        }
+
+        if (origName) {
+          // Cập nhật lớp cũ
+          var idx = classList.findIndex(function(c) { return c.className === origName; });
+          if (idx >= 0) {
+            classList[idx] = { className: name, siSo: siSo, soDoanVien: doanVien, ghiChu: note };
+          }
+        } else {
+          // Thêm mới
+          var existIdx = classList.findIndex(function(c) { return c.className === name; });
+          if (existIdx >= 0) {
+            alert('Lớp "' + name + '" đã tồn tại trong danh sách!');
+            return;
+          }
+          classList.push({ className: name, siSo: siSo, soDoanVien: doanVien, ghiChu: note });
+        }
+
+        classList.sort(function(a, b) {
+          return a.className.localeCompare(b.className, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        closeClassModal();
+        renderClassesTable();
+        showBanner('globalMsg', 'info', 'Đã cập nhật danh sách lớp tạm thời. Hãy nhấn "Lưu vào Sheet" để lưu vĩnh viễn.');
+      }
+
+      function deleteClass(className) {
+        if (!confirm('Bạn có chắc muốn xóa lớp "' + className + '" khỏi danh sách?')) return;
+        classList = classList.filter(function(c) { return c.className !== className; });
+        renderClassesTable();
+        showBanner('globalMsg', 'info', 'Đã xóa lớp khỏi danh sách tạm. Nhấn "Lưu vào Sheet" để áp dụng lên Google Sheet.');
+      }
+
+      function saveClassesList() {
+        var btn = document.getElementById('saveClassesBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang lưu Sheet...';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu vào Sheet';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              classList = res.classes || classList;
+              renderClassesTable();
+              if (currentSelectedWeek) loadProgressData(currentSelectedWeek);
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Lưu vào Sheet';
+            showBanner('globalMsg', 'error', 'Lỗi lưu danh sách lớp: ' + err.toString());
+          })
+          .adminSaveClasses(adminToken, classList);
+      }
+
+      // ================= IMPORT LỚP TỪ EXCEL =================
+      function openImportModal() {
+        document.getElementById('importTextarea').value = '';
+        document.getElementById('importErrorMsg').textContent = '';
+        document.getElementById('importModal').classList.remove('hidden');
+      }
+
+      function closeImportModal() {
+        document.getElementById('importModal').classList.add('hidden');
+      }
+
+      function executeImportClasses() {
+        var text = document.getElementById('importTextarea').value;
+        if (!text || !text.trim()) {
+          document.getElementById('importErrorMsg').textContent = 'Vui lòng dán dữ liệu vào ô trên.';
+          return;
+        }
+
+        var btn = document.getElementById('importSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang xử lý...';
+        document.getElementById('importErrorMsg').textContent = '';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = 'Nạp dữ liệu';
+            if (res.success) {
+              closeImportModal();
+              showBanner('globalMsg', 'success', res.message);
+              classList = res.classes || [];
+              renderClassesTable();
+              if (currentSelectedWeek) loadProgressData(currentSelectedWeek);
+            } else {
+              document.getElementById('importErrorMsg').textContent = res.message;
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Nạp dữ liệu';
+            document.getElementById('importErrorMsg').textContent = 'Lỗi xử lý: ' + err.toString();
+          })
+          .adminImportClassesText(adminToken, text);
+      }
+
+      function parseVnDate(str) {
+        if (!str) return null;
+        var s = str.toString().trim();
+        var dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (dmy) {
+          return new Date(parseInt(dmy[3], 10), parseInt(dmy[2], 10) - 1, parseInt(dmy[1], 10));
+        }
+        var ymd = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (ymd) {
+          return new Date(parseInt(ymd[1], 10), parseInt(ymd[2], 10) - 1, parseInt(ymd[3], 10));
+        }
+        var d = new Date(s);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      function getActivityStatus(startDateStr, endDateStr) {
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var sDate = parseVnDate(startDateStr);
+        var eDate = parseVnDate(endDateStr);
+
+        if (sDate && today < sDate) {
+          return { status: 'UPCOMING', label: 'Sắp diễn ra', icon: '🟡' };
+        }
+        if (eDate) {
+          var endOfDay = new Date(eDate.getFullYear(), eDate.getMonth(), eDate.getDate(), 23, 59, 59);
+          if (now > endOfDay) {
+            return { status: 'EXPIRED', label: 'Đã kết thúc', icon: '⚪' };
+          }
+        }
+        return { status: 'ACTIVE', label: 'Đang diễn ra', icon: '🟢' };
+      }
+
+      function escapeHtmlAttr(str) {
+        if (!str) return '';
+        return String(str).replace(/"/g, '&quot;');
+      }
+
+      // ================= CẤU HÌNH HOẠT ĐỘNG / PHONG TRÀO =================
+      function renderWeeksConfig(weeks) {
+        var container = document.getElementById('weeksContainer');
+        container.innerHTML = '';
+        if (!weeks || weeks.length === 0) {
+          addActivityRow({});
+          return;
+        }
+        weeks.forEach(function(w, idx) { addActivityRow(w, idx + 1); });
+      }
+
+      function reindexActivityCards() {
+        var container = document.getElementById('weeksContainer');
+        var badges = container.querySelectorAll('.activity-order-badge');
+        badges.forEach(function(badge, idx) {
+          badge.textContent = '#' + (idx + 1);
+        });
+      }
+
+      function addActivityRow(val, order) {
+        var container = document.getElementById('weeksContainer');
+        var card = document.createElement('div');
+        card.className = 'activity-config-card';
+
+        var name = typeof val === 'object' ? (val.name || '') : (val || '');
+        var startDate = typeof val === 'object' ? (val.startDate || '') : '';
+        var endDate = typeof val === 'object' ? (val.endDate || '') : '';
+        var targetType = typeof val === 'object' ? val.targetType : 'UNION';
+        var ghiChu = typeof val === 'object' ? (val.ghiChu || '') : '';
+        var num = order || (container.children.length + 1);
+
+        var selUnion = (targetType === 'UNION' || targetType === 'Đoàn viên') ? 'selected' : '';
+        var selAll = (targetType === 'ALL' || targetType === 'Cả lớp') ? 'selected' : '';
+
+        card.innerHTML =
+          '<div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">' +
+            '<span class="activity-order-badge">#' + num + '</span>' +
+            '<input type="text" class="input-text act-name-input" value="' + escapeHtmlAttr(name) + '" placeholder="Tên hoạt động / phong trào (VD: Phong trào thi đua 26/3...)" style="flex: 1; font-weight: 600; font-size: 13.5px;">' +
+            '<button type="button" onclick="this.closest(\'.activity-config-card\').remove(); reindexActivityCards();" class="btn btn-outline btn-sm" style="color: var(--error);" title="Xóa hoạt động này">&times;</button>' +
+          '</div>' +
+          '<div class="act-grid-fields">' +
+            '<div>' +
+              '<label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Bắt đầu (dd/MM/yyyy)</label>' +
+              '<input type="text" class="input-text act-start-input" value="' + escapeHtmlAttr(startDate) + '" placeholder="15/03/2025" style="width: 100%; font-size: 12.5px;">' +
+            '</div>' +
+            '<div>' +
+              '<label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Kết thúc (dd/MM/yyyy)</label>' +
+              '<input type="text" class="input-text act-end-input" value="' + escapeHtmlAttr(endDate) + '" placeholder="26/03/2025" style="width: 100%; font-size: 12.5px;">' +
+            '</div>' +
+            '<div>' +
+              '<label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Chỉ tiêu thu ảnh</label>' +
+              '<select class="input-text act-target-select" style="width: 100%; font-size: 12.5px;">' +
+                '<option value="UNION" ' + selUnion + '>Đoàn viên</option>' +
+                '<option value="ALL" ' + selAll + '>Cả lớp</option>' +
+              '</select>' +
+            '</div>' +
+            '<div>' +
+              '<label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Ghi chú hoạt động</label>' +
+              '<input type="text" class="input-text act-note-input" value="' + escapeHtmlAttr(ghiChu) + '" placeholder="Ghi chú / thể lệ..." style="width: 100%; font-size: 12.5px;">' +
+            '</div>' +
+          '</div>';
+
+        container.appendChild(card);
+      }
+
+      function addWeekRow(val) { addActivityRow(val); }
+
+      function saveConfig() {
+        var btn = document.getElementById('saveConfigBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang lưu...';
+
+        var weeks = [];
+        var cards = document.querySelectorAll('#weeksContainer .activity-config-card');
+        cards.forEach(function(c, idx) {
+          var nameInp = c.querySelector('.act-name-input');
+          var startInp = c.querySelector('.act-start-input');
+          var endInp = c.querySelector('.act-end-input');
+          var targetSel = c.querySelector('.act-target-select');
+          var noteInp = c.querySelector('.act-note-input');
+
+          if (nameInp) {
+            var v = nameInp.value.trim();
+            var t = targetSel ? targetSel.value : 'UNION';
+            var sd = startInp ? startInp.value.trim() : '';
+            var ed = endInp ? endInp.value.trim() : '';
+            var gc = noteInp ? noteInp.value.trim() : '';
+
+            if (v) {
+              weeks.push({
+                stt: idx + 1,
+                name: v,
+                startDate: sd,
+                endDate: ed,
+                targetType: t,
+                targetLabel: (t === 'ALL' ? 'Cả lớp' : 'Đoàn viên'),
+                ghiChu: gc
+              });
+            }
+          }
+        });
+
+        var newCfg = {
+          tenTruong: document.getElementById('cfgSchool').value.trim(),
+          tieuDe: document.getElementById('cfgTitle').value.trim(),
+          ghiChu: document.getElementById('cfgNote').value.trim(),
+          subfolderByClass: document.getElementById('cfgSubfolder').checked,
+          weeks: weeks
+        };
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu cấu hình';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              loadOverview();
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Lưu cấu hình';
+            showBanner('globalMsg', 'error', 'Lỗi lưu: ' + err.toString());
+          })
+          .adminUpdateConfig(adminToken, newCfg);
+      }
+
+      // ================= ĐỔI MẬT KHẨU =================
+      function handleChangePassword(e) {
+        e.preventDefault();
+        var curr = document.getElementById('currPass').value.trim();
+        var newP = document.getElementById('newPass').value.trim();
+        var conf = document.getElementById('confirmPass').value.trim();
+
+        if (newP !== conf) {
+          alert('Mật khẩu mới và xác nhận mật khẩu không khớp!');
+          return;
+        }
+
+        var btn = document.getElementById('changePassBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang đổi...';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = 'Cập nhật mật khẩu';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              adminToken = newP;
+              sessionStorage.setItem('admin_pass', newP);
+              document.getElementById('currPass').value = '';
+              document.getElementById('newPass').value = '';
+              document.getElementById('confirmPass').value = '';
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Cập nhật mật khẩu';
+            showBanner('globalMsg', 'error', 'Lỗi: ' + err.toString());
+          })
+          .adminChangePassword(curr, newP);
+      }
+
+      // ================= BẢO TRÌ BẢNG =================
+      function formatAllSheets() {
+        if (!confirm('Bạn có muốn định dạng lại tất cả các tab Tuần trong Google Sheet?')) return;
+        var btn = document.getElementById('formatSheetsBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div> Đang định dạng...';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Định dạng lại tất cả tab trong Sheet';
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = 'Định dạng lại tất cả tab trong Sheet';
+            showBanner('globalMsg', 'error', 'Lỗi: ' + err.toString());
+          })
+          .adminFormatAllSheets(adminToken);
+      }
+
+      // ================= MODAL XEM ẢNH =================
+      function openImagePreview(url, title) {
+        document.getElementById('imageModalTitle').textContent = title || 'Xem minh chứng';
+        document.getElementById('modalImg').src = url;
+        document.getElementById('modalDirectLink').href = url;
+        document.getElementById('imageModal').classList.remove('hidden');
+      }
+
+      function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+        document.getElementById('modalImg').src = '';
+      }
+
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      // ================= QUẢN LÝ NHẬT KÝ HỆ THỐNG (LOG) =================
+      function getActionBadgeHtml(action) {
+        var act = (action || '').toLowerCase();
+        var cls = 'badge-action-format';
+        if (act.indexOf('nộp') >= 0 || act.indexOf('upload') >= 0) cls = 'badge-action-upload';
+        else if (act.indexOf('xóa') >= 0 || act.indexOf('delete') >= 0) cls = 'badge-action-delete';
+        else if (act.indexOf('cấu hình') >= 0 || act.indexOf('config') >= 0 || act.indexOf('chỉ tiêu') >= 0) cls = 'badge-action-config';
+        else if (act.indexOf('lớp') >= 0 || act.indexOf('sĩ số') >= 0) cls = 'badge-action-class';
+        else if (act.indexOf('mật khẩu') >= 0 || act.indexOf('password') >= 0) cls = 'badge-action-auth';
+        return '<span class="badge-action ' + cls + '">' + escapeHtml(action || 'Khác') + '</span>';
+      }
+
+      function loadLogsData(customLimit) {
+        var limit = parseInt(customLimit || (document.getElementById('logsLimitSelect') ? document.getElementById('logsLimitSelect').value : 100), 10) || 100;
+        var loading = document.getElementById('logsLoading');
+        var wrapper = document.getElementById('logsTableWrapper');
+        if (loading) loading.classList.remove('hidden');
+        if (wrapper) wrapper.classList.add('hidden');
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (loading) loading.classList.add('hidden');
+            if (wrapper) wrapper.classList.remove('hidden');
+            if (!res.success) {
+              showBanner('globalMsg', 'error', res.message || 'Lỗi nạp nhật ký');
+              return;
+            }
+            rawLogs = res.logs || [];
+            var totalBadge = document.getElementById('logsCountBadge');
+            if (totalBadge) totalBadge.textContent = rawLogs.length + ' bản ghi gần nhất';
+            var metricTotal = document.getElementById('logsMetricTotal');
+            if (metricTotal) metricTotal.textContent = (res.totalCount || rawLogs.length).toLocaleString('vi-VN');
+            filterLogsTable();
+          })
+          .withFailureHandler(function(err) {
+            if (loading) loading.classList.add('hidden');
+            if (wrapper) wrapper.classList.remove('hidden');
+            showBanner('globalMsg', 'error', 'Lỗi kết nối nhật ký: ' + err.toString());
+          })
+          .getAdminLogs(adminToken, limit);
+      }
+
+      function filterLogsTable() {
+        var query = (document.getElementById('logsSearchInput') ? document.getElementById('logsSearchInput').value : '').toLowerCase().trim();
+        var actionFilter = document.getElementById('logsActionFilter') ? document.getElementById('logsActionFilter').value : 'ALL';
+
+        var filtered = rawLogs.filter(function(log) {
+          if (actionFilter !== 'ALL') {
+            if ((log.action || '').indexOf(actionFilter) === -1) return false;
+          }
+          if (query) {
+            var matchText = [log.timestamp, log.action, log.actor, log.className, log.activityName, log.details].join(' ').toLowerCase();
+            if (matchText.indexOf(query) === -1) return false;
+          }
+          return true;
+        });
+
+        renderLogsTable(filtered);
+      }
+
+      function renderLogsTable(logs) {
+        var tbody = document.getElementById('logsTableBody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        if (!logs || logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Không tìm thấy nhật ký phù hợp với bộ lọc.</td></tr>';
+          return;
+        }
+
+        logs.forEach(function(log, idx) {
+          var tr = document.createElement('tr');
+
+          var linkHtml = '-';
+          if (log.linkUrl) {
+            linkHtml = '<button type="button" onclick="openImagePreview(\'' + escapeHtml(log.linkUrl) + '\', \'' + escapeHtml(log.actor || 'Minh chứng') + '\')" class="btn btn-outline btn-sm" style="padding: 3px 8px; font-size: 11.5px;">Xem ảnh</button>';
+          }
+
+          var statusBadge = '<span class="badge-status-completed" style="font-size: 11px;">' + escapeHtml(log.status || 'Thành công') + '</span>';
+          if ((log.status || '').toLowerCase().indexOf('thất bại') >= 0 || (log.status || '').toLowerCase().indexOf('lỗi') >= 0) {
+            statusBadge = '<span class="badge-status-notstarted" style="font-size: 11px;">' + escapeHtml(log.status) + '</span>';
+          }
+
+          tr.innerHTML =
+            '<td style="text-align: center; font-weight: 600; color: var(--ink-soft);">' + (idx + 1) + '</td>' +
+            '<td style="text-align: center; font-size: 12px; font-family: monospace; white-space: nowrap;">' + escapeHtml(log.timestamp || '') + '</td>' +
+            '<td style="text-align: center;">' + getActionBadgeHtml(log.action) + '</td>' +
+            '<td style="font-weight: 600; color: var(--navy);">' + escapeHtml(log.actor || '-') + '</td>' +
+            '<td style="text-align: center;"><span class="badge-class" style="font-size: 11px;">' + escapeHtml(log.className || '-') + '</span></td>' +
+            '<td style="font-size: 12.5px; color: var(--ink-soft);">' + escapeHtml(log.activityName || '-') + '</td>' +
+            '<td style="font-size: 12.5px; line-height: 1.4;">' + escapeHtml(log.details || '-') + '</td>' +
+            '<td style="text-align: center;">' + linkHtml + '</td>' +
+            '<td style="text-align: center;">' + statusBadge + '</td>';
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      function handleClearLogs() {
+        if (!confirm('Bạn có chắc chắn muốn dọn dẹp các dòng nhật ký cũ trong Google Sheet? Thao tác này sẽ làm sạch sheet Log và chỉ giữ lại dòng tiêu đề.')) return;
+        var btn = document.getElementById('clearLogsBtn');
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<div class="spinner"></div> Đang dọn...';
+        }
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Dọn log cũ';
+            }
+            if (res.success) {
+              showBanner('globalMsg', 'success', res.message);
+              loadLogsData();
+            } else {
+              showBanner('globalMsg', 'error', res.message);
+            }
+          })
+          .withFailureHandler(function(err) {
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = 'Dọn log cũ';
+            }
+            showBanner('globalMsg', 'error', 'Lỗi dọn dẹp nhật ký: ' + err.toString());
+          })
+          .adminClearLogs(adminToken);
+      }
+    </script>
+  </body>
+</html>
