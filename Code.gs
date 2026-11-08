@@ -303,8 +303,12 @@ function getOrCreateConfigSheet_(ss) {
 }
 
 function getSubfolderByClassSetting_(configSheet) {
+  if (!configSheet) configSheet = getOrCreateConfigSheet_();
+  // Ưu tiên đọc ô D2 (nằm cạnh ô nhãn C2 trong bảng tính)
   var val2 = configSheet.getRange('D2').getValue();
   if (val2 === true || val2 === 'TRUE' || val2 === 'true') return true;
+  if (val2 === false || val2 === 'FALSE' || val2 === 'false') return false;
+  // Fallback sang ô D1
   var val1 = configSheet.getRange('D1').getValue();
   return val1 === true || val1 === 'TRUE' || val1 === 'true';
 }
@@ -1729,7 +1733,9 @@ function adminUpdateConfig(password, newConfig) {
       configSheet.getRange('B4').setValue(newConfig.ghiChu);
     }
     if (newConfig.subfolderByClass !== undefined) {
-      configSheet.getRange('D1').setValue(!!newConfig.subfolderByClass);
+      var isSub = !!newConfig.subfolderByClass;
+      configSheet.getRange('D1').setValue(isSub);
+      configSheet.getRange('D2').setValue(isSub);
     }
 
     if (newConfig.weeks && Array.isArray(newConfig.weeks)) {
@@ -1769,6 +1775,114 @@ function adminUpdateConfig(password, newConfig) {
     return { success: true, message: 'Đã lưu cấu hình thành công!' };
   } catch (err) {
     return { success: false, message: 'Lỗi lưu cấu hình: ' + err.toString() };
+  }
+}
+
+// Bật / Tắt nhanh tính năng tạo thư mục con theo lớp
+function adminToggleSubfolderByClass(password, enabled) {
+  var auth = verifyAdminPassword(password);
+  if (!auth.success) return auth;
+
+  try {
+    var configSheet = getOrCreateConfigSheet_();
+    var isEnabled = !!enabled;
+    configSheet.getRange('D1').setValue(isEnabled);
+    configSheet.getRange('D2').setValue(isEnabled);
+
+    try {
+      writeLog_(
+        null,
+        'Cập nhật cấu hình',
+        'Admin',
+        '',
+        '',
+        (isEnabled ? 'BẬT' : 'TẮT') + ' tính năng tự động tạo thư mục con theo Lớp trên Google Drive',
+        '',
+        'Thành công'
+      );
+    } catch (eLog) {}
+
+    return {
+      success: true,
+      enabled: isEnabled,
+      message: isEnabled
+        ? 'Đã BẬT: Các bài nộp mới sẽ tự động lưu vào thư mục con theo từng Lớp.'
+        : 'Đã TẮT: Các bài nộp mới sẽ lưu trực tiếp trong thư mục của từng Tuần.'
+    };
+  } catch (err) {
+    return { success: false, message: 'Lỗi cập nhật cài đặt: ' + err.toString() };
+  }
+}
+
+// Khởi tạo trước toàn bộ thư mục con của các lớp trên Google Drive
+function adminCreateAllClassSubfolders(password) {
+  var auth = verifyAdminPassword(password);
+  if (!auth.success) return auth;
+
+  try {
+    checkConfigured_();
+    var mainFolder = DriveApp.getFolderById(MAIN_FOLDER_ID);
+    var configSheet = getOrCreateConfigSheet_();
+    var weeks = readWeeks_(configSheet);
+    var classes = readClasses_();
+
+    if (!weeks || weeks.length === 0) {
+      return { success: false, message: 'Chưa có hoạt động / tuần nào trong danh sách cấu hình!' };
+    }
+    if (!classes || classes.length === 0) {
+      return { success: false, message: 'Chưa có danh sách lớp nào trong hệ thống! Vui lòng thêm lớp tại tab Quản lý Lớp trước.' };
+    }
+
+    // Đảm bảo bật setting trên Sheet
+    configSheet.getRange('D1').setValue(true);
+    configSheet.getRange('D2').setValue(true);
+
+    var createdCount = 0;
+    var existingCount = 0;
+
+    weeks.forEach(function(w) {
+      var wName = typeof w === 'object' ? w.name : w;
+      if (!wName) return;
+      var weekFolderName = sanitizeForFileName_(wName, 45);
+      var wFolders = mainFolder.getFoldersByName(weekFolderName);
+      var weekFolder = wFolders.hasNext() ? wFolders.next() : mainFolder.createFolder(weekFolderName);
+
+      classes.forEach(function(c) {
+        var clsName = (typeof c === 'object' ? c.className : c).toString().trim();
+        if (!clsName) return;
+
+        var cFolders = weekFolder.getFoldersByName(clsName);
+        if (cFolders.hasNext()) {
+          existingCount++;
+        } else {
+          weekFolder.createFolder(clsName);
+          createdCount++;
+        }
+      });
+    });
+
+    try {
+      writeLog_(
+        null,
+        'Khởi tạo thư mục Drive',
+        'Admin',
+        '',
+        '',
+        'Đã tạo mới ' + createdCount + ' thư mục lớp, đồng bộ ' + (createdCount + existingCount) + ' thư mục trên Google Drive',
+        '',
+        'Thành công'
+      );
+    } catch (eLog) {}
+
+    return {
+      success: true,
+      createdCount: createdCount,
+      totalCount: createdCount + existingCount,
+      driveUrl: 'https://drive.google.com/drive/folders/' + MAIN_FOLDER_ID,
+      message: 'Khởi tạo thành công! Đã tạo mới ' + createdCount + ' thư mục lớp (tổng số: ' + (createdCount + existingCount) + ' thư mục sẵn sàng trên Drive).'
+    };
+  } catch (err) {
+    return { success: false, message: 'Lỗi khởi tạo thư mục trên Drive: ' + err.toString() };
   }
 }
 
