@@ -1233,7 +1233,7 @@
         var targetUrl = (formLink && formLink.href) || '';
 
         // Nếu targetUrl là URL Apps Script hợp lệ (chứa script.google.com, không chứa sandbox googleusercontent)
-        if (targetUrl && targetUrl !== '#' && targetUrl.indexOf('script.google.com') !== -1 && targetUrl.indexOf('googleusercontent') === -1 && targetUrl.indexOf('<?=') === -1) {
+        if (targetUrl && targetUrl !== '#' && targetUrl.indexOf('script.google.com') !== -1 && targetUrl.indexOf('googleusercontent') === -1 && targetUrl.indexOf('<') === -1) {
           return true;
         }
 

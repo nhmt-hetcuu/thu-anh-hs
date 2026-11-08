@@ -1234,7 +1234,7 @@
       function handleGoToAdmin(e) {
         var topBtn = document.getElementById('topAdminBtn') || document.getElementById('adminPortalLink');
         var targetUrl = (topBtn && topBtn.href) || '';
-        if (targetUrl && targetUrl !== '#' && targetUrl.indexOf('script.google.com') !== -1 && targetUrl.indexOf('googleusercontent') === -1 && targetUrl.indexOf('<?=') === -1) {
+        if (targetUrl && targetUrl !== '#' && targetUrl.indexOf('script.google.com') !== -1 && targetUrl.indexOf('googleusercontent') === -1 && targetUrl.indexOf('<') === -1) {
           return true;
         }
         if (e && e.preventDefault) e.preventDefault();
