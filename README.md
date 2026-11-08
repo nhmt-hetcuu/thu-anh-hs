@@ -1,8 +1,11 @@
 # Web Thu Hình Ảnh Hoạt Động Đoàn
 
-Ứng dụng web chạy trên **Google Apps Script** giúp học sinh nộp ảnh/video minh chứng hoạt động Đoàn theo từng tuần. File được lưu tự động vào **Google Drive**, dữ liệu (họ tên, lớp, thời gian, link ảnh) được ghi vào **Google Sheet** — không cần server riêng, không tốn phí. </br>
+Ứng dụng web chạy trên **Google Apps Script** giúp học sinh nộp ảnh/video minh chứng hoạt động Đoàn theo từng tuần. File được lưu tự động vào **Google Drive**, dữ liệu (họ tên, lớp, thời gian, link ảnh) được ghi vào **Google Sheet** — không cần server riêng, không tốn phí. <br>
 **Drive Demo:** https://drive.google.com/drive/folders/1EW39H6RnS33-lJf6CG3D0o08EWxAlME1?usp=sharing
-
+<br>
+**App Script Demo:** https://script.google.com/d/1YJpCO5uJCja1WxbwEcmAF7NEq2ZDIeWy4UH18_QTM0WfkOk0w_homXEK/edit?usp=sharing
+<br>
+**Link Demo:** https://script.google.com/macros/s/AKfycbzC7p4uxISLh_4f8dXxpFbY_00RaX8xeipj0Kmc-RcXEDQ70neaeCCV6xS7Kq7XS7ZOpw/exec
 ## 📸 Hình ảnh giao diện (Demo Screenshots)
 
 ### 1. Phía Học sinh & Công khai
