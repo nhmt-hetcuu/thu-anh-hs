@@ -59,6 +59,41 @@ const mockData = {
     { className: '11A1', grade: '11', siSo: 42, totalStudents: 42, soDoanVien: 40, unionMembers: 40, target: 40, targetCount: 40, submittedCount: 25, submitted: 25, missingCount: 15, missing: 15, percentage: 63, status: 'IN_PROGRESS', statusLabel: 'Đang làm' },
     { className: '11A2', grade: '11', siSo: 45, totalStudents: 45, soDoanVien: 42, unionMembers: 42, target: 42, targetCount: 42, submittedCount: 15, submitted: 15, missingCount: 27, missing: 27, percentage: 36, status: 'IN_PROGRESS', statusLabel: 'Đang làm' },
     { className: '10A1', grade: '10', siSo: 46, totalStudents: 46, soDoanVien: 40, unionMembers: 40, target: 40, targetCount: 40, submittedCount: 0, submitted: 0, missingCount: 40, missing: 40, percentage: 0, status: 'NOT_STARTED', statusLabel: 'Chưa nộp' }
+  ],
+  nonCompletionReports: [
+    {
+      rowIndex: 2,
+      stt: 1,
+      timestamp: '03/03/2025 08:35:12',
+      className: '12A3',
+      classStt: 12,
+      fullName: 'Trần Minh Quân',
+      activityName: 'Tìm hiểu 94 năm ngày truyền thống thành lập Đoàn TNCS Hồ Chí Minh',
+      reason: 'Nghỉ ốm có giấy phép của phụ huynh từ ngày 02/03 đến 06/03/2025',
+      note: 'Đã xác nhận GVCN'
+    },
+    {
+      rowIndex: 3,
+      stt: 2,
+      timestamp: '04/03/2025 14:15:20',
+      className: '11A1',
+      classStt: 8,
+      fullName: 'Lê Hoàng Yến',
+      activityName: 'Tìm hiểu 94 năm ngày truyền thống thành lập Đoàn TNCS Hồ Chí Minh',
+      reason: 'Điện thoại bị hỏng màn hình đang gửi bảo hành tại trung tâm',
+      note: 'Chờ xác nhận'
+    },
+    {
+      rowIndex: 4,
+      stt: 3,
+      timestamp: '05/03/2025 19:40:05',
+      className: '10A1',
+      classStt: 25,
+      fullName: 'Phạm Đức Trọng',
+      activityName: 'Tìm hiểu 94 năm ngày truyền thống thành lập Đoàn TNCS Hồ Chí Minh',
+      reason: 'Tham gia đội tuyển bồi dưỡng học sinh giỏi tỉnh bận lịch tập huấn',
+      note: 'Đã xác nhận GVCN'
+    }
   ]
 };
 
@@ -145,6 +180,7 @@ function createRunner() {
             ],
             mainStudentCount: 201,
             logCount: 36,
+            nonCompletionCount: 3,
             formUrl: '#',
             spreadsheetUrl: 'https://docs.google.com/spreadsheets/d/dummy-student',
             adminSpreadsheetUrl: 'https://docs.google.com/spreadsheets/d/dummy-admin',
@@ -217,6 +253,35 @@ function createRunner() {
             lastFileUrl: 'https://drive.google.com/sample',
             lastTimestamp: '02/03/2025 08:30:15',
             message: 'Học sinh Nguyễn Văn An đã nộp 1/3 lần. Bạn vẫn có thể nộp lại (file mới sẽ thay thế file cũ).'
+          });
+        }, 5);
+      },
+      submitNonCompletionReport: function(name, cls, stt, week, reason) {
+        var self = this;
+        setTimeout(function() {
+          self._success({
+            success: true,
+            isUpdate: false,
+            message: 'Đã ghi nhận thông báo lý do không thể tham gia của bạn. Nhà trường và GVCN sẽ xem xét!'
+          });
+        }, 5);
+      },
+      getAdminNonCompletionReports: function(pass, week, cls) {
+        var self = this;
+        setTimeout(function() {
+          self._success({
+            success: true,
+            reports: mockData.nonCompletionReports,
+            totalCount: mockData.nonCompletionReports.length
+          });
+        }, 5);
+      },
+      adminDeleteNonCompletionReport: function(pass, idx) {
+        var self = this;
+        setTimeout(function() {
+          self._success({
+            success: true,
+            message: 'Đã xóa báo cáo không tham gia thành công.'
           });
         }, 5);
       },
@@ -294,6 +359,27 @@ window.addEventListener('load', function() {
 </script>
 `;
 
+// 2c. Modal Báo không thực hiện được
+let pageNonComp = prepareHtml(indexHtmlRaw);
+pageNonComp += `
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('fullName').value = 'Trần Minh Quân';
+    document.getElementById('className').value = '12A3';
+    document.getElementById('sttNumber').value = '12';
+    if (typeof openNonCompletionModal === 'function') {
+      openNonCompletionModal();
+      setTimeout(function() {
+        var reasonEl = document.getElementById('ncReason');
+        if (reasonEl) reasonEl.value = 'Nghỉ ốm có giấy phép của phụ huynh từ ngày 02/03 đến 06/03/2025 (điều trị sốt xuất huyết tại nhà).';
+      }, 50);
+    }
+  }, 120);
+});
+</script>
+`;
+
 // 3. Admin Dashboard
 let pageAdmin = prepareHtml(adminHtmlRaw);
 pageAdmin += `
@@ -348,6 +434,24 @@ window.addEventListener('load', function() {
 </script>
 `;
 
+// 6. Admin Non-completion Reports Tab
+let pageAdminNonComp = prepareHtml(adminHtmlRaw);
+pageAdminNonComp += `
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    adminToken = 'sample_pass';
+    document.getElementById('loginView').classList.add('hidden');
+    document.getElementById('adminDashboard').classList.remove('hidden');
+    loadOverview();
+    setTimeout(function() {
+      switchTab('nonCompletionTab');
+    }, 80);
+  }, 50);
+});
+</script>
+`;
+
 const items = [
   {
     htmlFile: 'temp-student-form.html',
@@ -371,6 +475,13 @@ const items = [
     height: 980
   },
   {
+    htmlFile: 'temp-non-completion-modal.html',
+    content: pageNonComp,
+    outputImg: 'demo-non-completion-modal.png',
+    width: 1240,
+    height: 980
+  },
+  {
     htmlFile: 'temp-admin-dashboard.html',
     content: pageAdmin,
     outputImg: 'demo-admin-dashboard.png',
@@ -388,6 +499,13 @@ const items = [
     htmlFile: 'temp-admin-config.html',
     content: pageAdminConfig,
     outputImg: 'demo-admin-config.png',
+    width: 1400,
+    height: 880
+  },
+  {
+    htmlFile: 'temp-admin-non-completion.html',
+    content: pageAdminNonComp,
+    outputImg: 'demo-admin-non-completion.png',
     width: 1400,
     height: 880
   }

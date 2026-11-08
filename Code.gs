@@ -601,6 +601,76 @@ function writeLog_(ss, action, actor, className, activityName, details, linkUrl,
   } catch (e) {}
 }
 
+// ============================================================
+// SHEET BÁO KHÔNG THỰC HIỆN ĐƯỢC HOẠT ĐỘNG
+// ============================================================
+
+function formatNonCompletionSheet_(sheet) {
+  try {
+    var headerRange = sheet.getRange(1, 1, 1, 8);
+    headerRange.setBackground('#991B1B'); // Đỏ đậm Crimson
+    headerRange.setFontColor('#FFFFFF');
+    headerRange.setFontWeight('bold');
+    headerRange.setHorizontalAlignment('center');
+    headerRange.setVerticalAlignment('middle');
+    sheet.setRowHeight(1, 34);
+    sheet.setFrozenRows(1);
+
+    sheet.setColumnWidth(1, 60);  // STT
+    sheet.setColumnWidth(2, 160); // Thời gian
+    sheet.setColumnWidth(3, 90);  // Lớp
+    sheet.setColumnWidth(4, 90);  // STT Lớp
+    sheet.setColumnWidth(5, 200); // Họ và tên
+    sheet.setColumnWidth(6, 260); // Hoạt động / Phong trào
+    sheet.setColumnWidth(7, 320); // Lý do không thực hiện
+    sheet.setColumnWidth(8, 140); // Ghi chú
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow >= 2) {
+      var numRows = lastRow - 1;
+      var dataRange = sheet.getRange(2, 1, numRows, 8);
+      dataRange.setVerticalAlignment('middle');
+      dataRange.setBorder(true, true, true, true, true, true, '#CBD5E1', SpreadsheetApp.BorderStyle.SOLID);
+
+      sheet.getRange(2, 1, numRows, 1).setHorizontalAlignment('center').setFontWeight('bold');
+      sheet.getRange(2, 2, numRows, 1).setHorizontalAlignment('center');
+      sheet.getRange(2, 3, numRows, 2).setHorizontalAlignment('center');
+      sheet.getRange(2, 5, numRows, 1).setHorizontalAlignment('left').setFontWeight('bold');
+      sheet.getRange(2, 6, numRows, 1).setHorizontalAlignment('left').setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+      sheet.getRange(2, 7, numRows, 1).setHorizontalAlignment('left').setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+      sheet.getRange(2, 8, numRows, 1).setHorizontalAlignment('center');
+
+      for (var r = 2; r <= lastRow; r++) {
+        var rowBg = (r % 2 === 0) ? '#FFFFFF' : '#FEF2F2';
+        sheet.getRange(r, 1, 1, 8).setBackground(rowBg);
+        sheet.setRowHeight(r, 30);
+      }
+    }
+  } catch (e) {}
+}
+
+function getOrCreateNonCompletionSheet_(ss) {
+  checkConfigured_();
+  if (!ss) ss = getStudentSpreadsheet_();
+  var sheetName = 'BaoKhongThucHien';
+  var sheet = ss.getSheetByName(sheetName);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    var headers = [['STT', 'Thời gian báo', 'Lớp', 'STT Lớp', 'Họ và tên', 'Hoạt động / Phong trào', 'Lý do không thực hiện', 'Ghi chú']];
+    sheet.getRange(1, 1, 1, 8).setValues(headers);
+    formatNonCompletionSheet_(sheet);
+  } else {
+    var firstCell = (sheet.getRange(1, 1).getValue() || '').toString().trim().toUpperCase();
+    if (firstCell !== 'STT') {
+      var headers = [['STT', 'Thời gian báo', 'Lớp', 'STT Lớp', 'Họ và tên', 'Hoạt động / Phong trào', 'Lý do không thực hiện', 'Ghi chú']];
+      sheet.getRange(1, 1, 1, 8).setValues(headers);
+      formatNonCompletionSheet_(sheet);
+    }
+  }
+  return sheet;
+}
+
 // Trang trí 1 tab Tuần: header tô màu, đóng băng dòng đầu, kẻ sọc xen kẽ, canh cột
 function formatWeekSheet_(sheet) {
   var headerRange = sheet.getRange(1, 1, 1, 6);
@@ -1308,6 +1378,120 @@ function uploadFile(base64Data, fileName, fullName, className, week, stt) {
   }
 }
 
+// Học sinh báo cáo lý do không thực hiện được hoạt động
+function submitNonCompletionReport(fullName, className, stt, week, reason) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000);
+  } catch (e) {
+    return { success: false, message: 'Hệ thống đang bận xử lý, vui lòng thử lại sau vài giây!' };
+  }
+
+  try {
+    fullName = (fullName || '').toString().trim();
+    className = (className || '').toString().trim();
+    week = (week || '').toString().trim();
+    reason = (reason || '').toString().trim();
+    var sttNum = parseInt(stt, 10);
+    if (isNaN(sttNum) || sttNum <= 0) sttNum = '';
+
+    if (!fullName) return { success: false, message: 'Vui lòng nhập họ và tên của bạn!' };
+    if (!className) return { success: false, message: 'Vui lòng chọn hoặc nhập lớp của bạn!' };
+    if (!week) return { success: false, message: 'Vui lòng chọn hoạt động / phong trào cần báo cáo!' };
+    if (!reason || reason.length < 5) return { success: false, message: 'Vui lòng nhập lý do cụ thể (tối thiểu 5 ký tự) để nhà trường ghi nhận!' };
+
+    checkConfigured_();
+    var ssStudent = getStudentSpreadsheet_();
+    var sheet = getOrCreateNonCompletionSheet_(ssStudent);
+    var timestamp = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
+
+    var lastRow = sheet.getLastRow();
+    var existingRowIndex = -1;
+
+    if (lastRow >= 2) {
+      var values = sheet.getRange(2, 1, lastRow - 1, 8).getValues();
+      for (var i = 0; i < values.length; i++) {
+        var rowClass = values[i][2];
+        var rowStt = values[i][3];
+        var rowName = values[i][4];
+        var rowWeek = values[i][5];
+
+        if (rowWeek === week && isSameStudent_(rowName, rowClass, rowStt, fullName, className, sttNum)) {
+          existingRowIndex = i + 2;
+          break;
+        }
+      }
+    }
+
+    var isUpdate = false;
+    if (existingRowIndex > 0) {
+      isUpdate = true;
+      sheet.getRange(existingRowIndex, 2).setValue(timestamp);
+      sheet.getRange(existingRowIndex, 3).setValue(className);
+      sheet.getRange(existingRowIndex, 4).setValue(sttNum !== '' ? sttNum : '');
+      sheet.getRange(existingRowIndex, 5).setValue(fullName);
+      sheet.getRange(existingRowIndex, 7).setValue(reason);
+      sheet.getRange(existingRowIndex, 8).setValue('Đã cập nhật lý do');
+    } else {
+      var newStt = Math.max(1, lastRow);
+      sheet.appendRow([
+        newStt,
+        timestamp,
+        className,
+        sttNum !== '' ? sttNum : '',
+        fullName,
+        week,
+        reason,
+        'Chờ xác nhận'
+      ]);
+    }
+
+    var updatedLastRow = sheet.getLastRow();
+    if (updatedLastRow >= 2) {
+      var numRows = updatedLastRow - 1;
+      var dataRange = sheet.getRange(2, 1, numRows, 8);
+      dataRange.sort([
+        { column: 3, ascending: true },
+        { column: 4, ascending: true }
+      ]);
+
+      var sttCol = [];
+      for (var s = 1; s <= numRows; s++) {
+        sttCol.push([s]);
+      }
+      sheet.getRange(2, 1, numRows, 1).setValues(sttCol);
+      formatNonCompletionSheet_(sheet);
+    }
+
+    try {
+      writeLog_(
+        null,
+        isUpdate ? 'Cập nhật lý do không tham gia' : 'Báo không tham gia',
+        fullName + (sttNum ? ' (STT ' + sttNum + ')' : ''),
+        className,
+        week,
+        'Lý do: ' + reason,
+        '',
+        'Thành công'
+      );
+    } catch (eLog) {}
+
+    return {
+      success: true,
+      isUpdate: isUpdate,
+      message: isUpdate
+        ? 'Đã cập nhật lại lý do không thể tham gia của bạn thành công!'
+        : 'Đã ghi nhận thông báo lý do không thể tham gia của bạn. Nhà trường và GVCN sẽ xem xét!'
+    };
+  } catch (err) {
+    return { success: false, message: 'Lỗi ghi nhận: ' + err.toString() };
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
+  }
+}
+
 // ============================================================
 // CÁC HÀM XỬ LÝ PHÍA TRANG ADMIN
 // ============================================================
@@ -1403,6 +1587,12 @@ function getAdminOverview(password) {
       logCount = logSheet.getLastRow() - 1;
     }
 
+    var nonCompSheet = ssStudent.getSheetByName('BaoKhongThucHien');
+    var nonCompletionCount = 0;
+    if (nonCompSheet && nonCompSheet.getLastRow() > 1) {
+      nonCompletionCount = nonCompSheet.getLastRow() - 1;
+    }
+
     return {
       success: true,
       config: {
@@ -1416,6 +1606,7 @@ function getAdminOverview(password) {
       weekStats: weekStats,
       mainStudentCount: mainStudentCount,
       logCount: logCount,
+      nonCompletionCount: nonCompletionCount,
       formUrl: formUrl || '',
       adminUrl: adminUrl || '?page=admin',
       spreadsheetUrl: getStudentSpreadsheetUrl_(),
@@ -2105,6 +2296,143 @@ function adminDeleteSubmission(password, weekName, rowIndex) {
     return { success: true, message: 'Đã xóa bài nộp thành công.' };
   } catch (err) {
     return { success: false, message: 'Lỗi khi xóa bài nộp: ' + err.toString() };
+  }
+}
+
+// ============================================================
+// QUẢN LÝ DANH SÁCH BÁO CÁO KHÔNG THỰC HIỆN ĐƯỢC (ADMIN)
+// ============================================================
+
+// Lấy danh sách học sinh báo không thực hiện được
+function getAdminNonCompletionReports(password, weekFilter, classFilter) {
+  var auth = verifyAdminPassword(password);
+  if (!auth.success) return auth;
+
+  try {
+    checkConfigured_();
+    var ssStudent = getStudentSpreadsheet_();
+    var sheet = ssStudent.getSheetByName('BaoKhongThucHien');
+    if (!sheet) {
+      return { success: true, reports: [], totalCount: 0 };
+    }
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+      return { success: true, reports: [], totalCount: 0 };
+    }
+
+    var numRows = lastRow - 1;
+    var values = sheet.getRange(2, 1, numRows, 8).getValues();
+    var reports = [];
+
+    weekFilter = (weekFilter || '').toString().trim();
+    classFilter = (classFilter || '').toString().trim();
+
+    for (var i = 0; i < numRows; i++) {
+      var rowNumber = i + 2;
+      var sttVal = values[i][0];
+      var timeVal = values[i][1];
+      var classVal = (values[i][2] || '').toString().trim();
+      var classSttVal = values[i][3];
+      var nameVal = (values[i][4] || '').toString().trim();
+      var weekVal = (values[i][5] || '').toString().trim();
+      var reasonVal = (values[i][6] || '').toString().trim();
+      var noteVal = (values[i][7] || '').toString().trim();
+
+      if (weekFilter && weekFilter !== 'ALL' && weekVal !== weekFilter) {
+        continue;
+      }
+
+      if (classFilter && classFilter !== 'ALL' && classVal !== classFilter) {
+        continue;
+      }
+
+      if (timeVal instanceof Date) {
+        timeVal = Utilities.formatDate(timeVal, "GMT+7", "dd/MM/yyyy HH:mm:ss");
+      } else {
+        timeVal = (timeVal || '').toString();
+      }
+
+      reports.push({
+        rowIndex: rowNumber,
+        stt: sttVal,
+        timestamp: timeVal,
+        className: classVal,
+        classStt: classSttVal,
+        fullName: nameVal,
+        activityName: weekVal,
+        reason: reasonVal,
+        note: noteVal
+      });
+    }
+
+    return {
+      success: true,
+      reports: reports,
+      totalCount: reports.length
+    };
+  } catch (err) {
+    return { success: false, message: 'Lỗi tải danh sách báo không thực hiện: ' + err.toString() };
+  }
+}
+
+// Xóa một báo cáo không thực hiện được khỏi Sheet
+function adminDeleteNonCompletionReport(password, rowIndex) {
+  var auth = verifyAdminPassword(password);
+  if (!auth.success) return auth;
+
+  try {
+    checkConfigured_();
+    var ssStudent = getStudentSpreadsheet_();
+    var sheet = ssStudent.getSheetByName('BaoKhongThucHien');
+    if (!sheet) {
+      return { success: false, message: 'Không tìm thấy tab BaoKhongThucHien trên Sheet.' };
+    }
+
+    var lastRow = sheet.getLastRow();
+    if (rowIndex < 2 || rowIndex > lastRow) {
+      return { success: false, message: 'Dòng cần xóa không còn tồn tại.' };
+    }
+
+    var delInfo = { name: '', class: '', activity: '', reason: '' };
+    try {
+      var rowVals = sheet.getRange(rowIndex, 1, 1, 8).getValues()[0];
+      delInfo.class = (rowVals[2] || '').toString();
+      delInfo.name = (rowVals[4] || '').toString();
+      delInfo.activity = (rowVals[5] || '').toString();
+      delInfo.reason = (rowVals[6] || '').toString();
+    } catch (eInfo) {}
+
+    sheet.deleteRow(rowIndex);
+
+    // Đánh lại STT cột 1
+    var newLastRow = sheet.getLastRow();
+    if (newLastRow >= 2) {
+      var numRows = newLastRow - 1;
+      var sttCol = [];
+      for (var s = 1; s <= numRows; s++) {
+        sttCol.push([s]);
+      }
+      sheet.getRange(2, 1, numRows, 1).setValues(sttCol);
+    }
+
+    // Ghi log
+    try {
+      writeLog_(
+        null,
+        'Xóa báo không thực hiện',
+        'Admin',
+        delInfo.class,
+        delInfo.activity,
+        'Xóa báo cáo của: ' + delInfo.name + (delInfo.reason ? (' (Lý do: ' + delInfo.reason + ')') : ''),
+        '',
+        'Thành công'
+      );
+    } catch (eLogDel) {}
+
+    return { success: true, message: 'Đã xóa báo cáo không tham gia thành công.' };
+  } catch (err) {
+    return { success: false, message: 'Lỗi khi xóa báo cáo: ' + err.toString() };
   }
 }
 

@@ -777,6 +777,11 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Danh sách bài nộp
         </button>
+        <button class="tab-btn" onclick="switchTab('nonCompletionTab')" id="nonCompletionTabBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Báo không thực hiện
+          <span id="badgeNonCompCount" style="display:none; margin-left: 6px; background: #DC2626; color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700;">0</span>
+        </button>
         <button class="tab-btn" onclick="switchTab('classesTab')">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Quản lý Lớp & Sĩ số
@@ -1224,6 +1229,102 @@
       </div>
     </div>
 
+    <!-- ================= TAB: BÁO CÁO KHÔNG THỰC HIỆN ================= -->
+    <div id="nonCompletionTab" class="hidden">
+      <!-- Filter Toolbar -->
+      <div class="panel" style="padding: 16px 20px; margin-bottom: 18px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="nonCompWeekSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Phong trào:</label>
+              <select id="nonCompWeekSelect" class="input-text" onchange="loadNonCompletionReports()" style="min-width: 220px; font-weight: 600;">
+                <option value="ALL">-- Tất cả hoạt động --</option>
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="nonCompClassSelect" style="font-weight: 700; color: var(--navy); margin: 0; font-size: 14px;">Lớp:</label>
+              <select id="nonCompClassSelect" class="input-text" onchange="filterNonCompletionLocal()" style="min-width: 130px;">
+                <option value="ALL">-- Tất cả lớp --</option>
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="text" id="nonCompSearchInput" class="input-text" placeholder="Tìm họ tên, STT, lý do..." oninput="filterNonCompletionLocal()" style="min-width: 200px;">
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="loadNonCompletionReports()" class="btn btn-outline" style="display: flex; align-items: center; gap: 6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Làm mới
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="nonCompBanner"></div>
+
+      <!-- Metric KPI Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 18px;">
+        <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-left: 4px solid #DC2626;">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: #FEF2F2; display: flex; align-items: center; justify-content: center; color: #DC2626;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <div style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Tổng số báo không thực hiện</div>
+            <div id="nonCompTotalKpi" style="font-size: 22px; font-weight: 800; color: #991B1B;">0</div>
+          </div>
+        </div>
+
+        <div class="panel" style="padding: 16px 20px; display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--gold);">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: rgba(184, 137, 43, 0.1); display: flex; align-items: center; justify-content: center; color: var(--gold);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Số lớp có học sinh báo</div>
+            <div id="nonCompClassesKpi" style="font-size: 22px; font-weight: 800; color: var(--navy);">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Non-completion Table -->
+      <div class="panel">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="panel-title" style="display: flex; align-items: center; gap: 8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Danh sách học sinh báo không thực hiện</span>
+          </div>
+          <span id="nonCompTableCount" style="font-size: 13px; color: var(--muted); font-weight: 600;">0 học sinh</span>
+        </div>
+
+        <div id="nonCompTableWrapper" class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 50px; text-align: center;">STT</th>
+                <th style="width: 140px;">Thời gian</th>
+                <th style="width: 80px; text-align: center;">Lớp</th>
+                <th style="width: 75px; text-align: center;">STT Lớp</th>
+                <th style="width: 180px;">Họ và tên</th>
+                <th style="width: 220px;">Hoạt động / Phong trào</th>
+                <th>Lý do không thực hiện</th>
+                <th style="width: 120px; text-align: center;">Ghi chú</th>
+                <th style="width: 80px; text-align: center;">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="nonCompTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">
+                  Chưa nạp dữ liệu. Vui lòng bấm vào tab này để xem báo cáo.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= PHOTO PREVIEW MODAL ================= -->
     <div id="imageModal" class="modal-backdrop hidden" onclick="closeImageModal()">
       <div class="modal-content preview-image-modal" onclick="event.stopPropagation()">
@@ -1424,7 +1525,7 @@
       }
 
       function switchTab(tabId) {
-        var tabs = ['progressTab', 'submissionsTab', 'classesTab', 'configTab', 'logsTab', 'toolsTab'];
+        var tabs = ['progressTab', 'submissionsTab', 'nonCompletionTab', 'classesTab', 'configTab', 'logsTab', 'toolsTab'];
         tabs.forEach(function(t) {
           var el = document.getElementById(t);
           if (el) el.classList.add('hidden');
@@ -1440,6 +1541,8 @@
 
         if (tabId === 'progressTab') {
           if (currentSelectedWeek) loadProgressData(currentSelectedWeek);
+        } else if (tabId === 'nonCompletionTab') {
+          loadNonCompletionReports();
         } else if (tabId === 'classesTab') {
           renderClassesTable();
         } else if (tabId === 'logsTab') {
@@ -1472,11 +1575,18 @@
             }
             document.getElementById('navTitle').textContent = res.config.tenTruong || 'Bảng Quản Trị';
 
-            // Cập nhật số liệu tổng quan của Sheet chính và Log
+            // Cập nhật số liệu tổng quan của Sheet chính, Log và Báo không thực hiện
             var elMainCount = document.getElementById('logsMetricStudents');
             if (elMainCount) elMainCount.textContent = (res.mainStudentCount || 0).toLocaleString('vi-VN');
             var elLogCount = document.getElementById('logsMetricTotal');
             if (elLogCount) elLogCount.textContent = (res.logCount || 0).toLocaleString('vi-VN');
+
+            var badgeNonComp = document.getElementById('badgeNonCompCount');
+            if (badgeNonComp) {
+              var ncCount = res.nonCompletionCount || 0;
+              badgeNonComp.textContent = ncCount;
+              badgeNonComp.style.display = ncCount > 0 ? 'inline-block' : 'none';
+            }
 
             // Điền tab Cấu hình
             document.getElementById('cfgSchool').value = res.config.tenTruong || '';
@@ -1491,6 +1601,10 @@
             renderStatsCards(res.weekStats || []);
 
             // Nạp tuần vào select của tab Tiến độ
+            populateProgressWeekSelect(res.config.weeks || []);
+
+            // Nạp tuần & lớp vào bộ lọc của tab Báo không thực hiện
+            populateNonCompFilters(res.config.weeks || [], res.classes || []);
             populateProgressWeekSelect(res.config.weeks || []);
 
             // Render danh sách lớp trong tab Quản lý Lớp
@@ -2667,6 +2781,148 @@
             showBanner('globalMsg', 'error', 'Lỗi dọn dẹp nhật ký: ' + err.toString());
           })
           .adminClearLogs(adminToken);
+      }
+
+      // ================= QUẢN LÝ BÁO CÁO KHÔNG THỰC HIỆN ĐƯỢC =================
+      var rawNonCompReports = [];
+
+      function populateNonCompFilters(weeks, classes) {
+        var wSel = document.getElementById('nonCompWeekSelect');
+        if (wSel) {
+          var currVal = wSel.value || 'ALL';
+          wSel.innerHTML = '<option value="ALL">-- Tất cả hoạt động --</option>';
+          (weeks || []).forEach(function(w) {
+            var name = typeof w === 'object' ? w.name : w;
+            var opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            wSel.appendChild(opt);
+          });
+          if (currVal) wSel.value = currVal;
+        }
+
+        var cSel = document.getElementById('nonCompClassSelect');
+        if (cSel) {
+          var currClassVal = cSel.value || 'ALL';
+          cSel.innerHTML = '<option value="ALL">-- Tất cả lớp --</option>';
+          (classes || []).forEach(function(c) {
+            var cName = typeof c === 'object' ? c.className : c;
+            var opt = document.createElement('option');
+            opt.value = cName;
+            opt.textContent = cName;
+            cSel.appendChild(opt);
+          });
+          if (currClassVal) cSel.value = currClassVal;
+        }
+      }
+
+      function loadNonCompletionReports() {
+        var weekSel = document.getElementById('nonCompWeekSelect');
+        var weekFilter = (weekSel && weekSel.value) || 'ALL';
+
+        var tbody = document.getElementById('nonCompTableBody');
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;"><div class="spinner" style="margin: 0 auto 8px;"></div>Đang nạp danh sách báo không thực hiện...</td></tr>';
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (!res.success) {
+              tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--error); padding: 25px;">' + escapeHtml(res.message || 'Lỗi nạp danh sách.') + '</td></tr>';
+              return;
+            }
+            rawNonCompReports = res.reports || [];
+
+            // Cập nhật badge ở tab navigation
+            var badgeNonComp = document.getElementById('badgeNonCompCount');
+            if (badgeNonComp) {
+              badgeNonComp.textContent = rawNonCompReports.length;
+              badgeNonComp.style.display = rawNonCompReports.length > 0 ? 'inline-block' : 'none';
+            }
+
+            filterNonCompletionLocal();
+          })
+          .withFailureHandler(function(err) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--error); padding: 25px;">Lỗi mạng: ' + escapeHtml(err.message || err.toString()) + '</td></tr>';
+          })
+          .getAdminNonCompletionReports(adminToken, weekFilter, 'ALL');
+      }
+
+      function filterNonCompletionLocal() {
+        var classFilter = (document.getElementById('nonCompClassSelect').value || 'ALL').trim();
+        var search = (document.getElementById('nonCompSearchInput').value || '').trim().toLowerCase();
+
+        var filtered = rawNonCompReports.filter(function(r) {
+          if (classFilter !== 'ALL' && r.className !== classFilter) return false;
+          if (search) {
+            var text = ((r.fullName || '') + ' ' + (r.className || '') + ' ' + (r.classStt || '') + ' ' + (r.reason || '') + ' ' + (r.activityName || '')).toLowerCase();
+            if (text.indexOf(search) === -1) return false;
+          }
+          return true;
+        });
+
+        renderNonCompletionTable(filtered);
+      }
+
+      function renderNonCompletionTable(reports) {
+        var tbody = document.getElementById('nonCompTableBody');
+        var totalKpi = document.getElementById('nonCompTotalKpi');
+        var classesKpi = document.getElementById('nonCompClassesKpi');
+        var countText = document.getElementById('nonCompTableCount');
+
+        if (totalKpi) totalKpi.textContent = reports.length;
+        if (countText) countText.textContent = reports.length + ' học sinh';
+
+        var classSet = {};
+        reports.forEach(function(r) { if (r.className) classSet[r.className] = true; });
+        if (classesKpi) classesKpi.textContent = Object.keys(classSet).length;
+
+        if (reports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 30px;">Không có học sinh nào báo không thực hiện (hoặc không khớp bộ lọc).</td></tr>';
+          return;
+        }
+
+        var html = '';
+        reports.forEach(function(r, idx) {
+          html += '<tr>' +
+            '<td style="text-align: center; font-weight: 600; color: var(--muted);">' + (idx + 1) + '</td>' +
+            '<td style="font-size: 12.5px; color: var(--ink-soft);">' + escapeHtml(r.timestamp || '') + '</td>' +
+            '<td style="text-align: center;"><span class="badge" style="background: rgba(28,37,65,0.08); color: var(--navy); font-weight: 700; padding: 3px 8px; border-radius: 6px;">' + escapeHtml(r.className || '') + '</span></td>' +
+            '<td style="text-align: center; font-weight: 600;">' + escapeHtml(r.classStt || '-') + '</td>' +
+            '<td style="font-weight: 700; color: var(--ink);">' + escapeHtml(r.fullName || '') + '</td>' +
+            '<td style="font-size: 13px; color: var(--navy); line-height: 1.35;">' + escapeHtml(r.activityName || '') + '</td>' +
+            '<td style="font-size: 13px; color: #991B1B; line-height: 1.4; background: #FFFBFB; border-left: 2px solid #FCA5A5; padding: 8px 10px;">' + escapeHtml(r.reason || '') + '</td>' +
+            '<td style="text-align: center;"><span class="badge" style="background: #FEF3C7; color: #92400E; font-size: 11.5px; padding: 2px 7px; border-radius: 4px;">' + escapeHtml(r.note || 'Chờ xác nhận') + '</span></td>' +
+            '<td style="text-align: center;">' +
+              '<button type="button" class="btn btn-danger btn-sm" onclick="handleDeleteNonCompletionReport(' + r.rowIndex + ', \'' + escapeHtml((r.fullName || '')).replace(/'/g, "\\'") + '\')" title="Xóa báo cáo này khỏi Sheet">' +
+                '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' +
+              '</button>' +
+            '</td>' +
+          '</tr>';
+        });
+
+        tbody.innerHTML = html;
+      }
+
+      function handleDeleteNonCompletionReport(rowIndex, studentName) {
+        if (!confirm('Bạn có chắc chắn muốn xóa báo cáo lý do của học sinh "' + studentName + '" khỏi hệ thống không?')) {
+          return;
+        }
+
+        showBanner('nonCompBanner', 'info', 'Đang xóa báo cáo khỏi Sheet...');
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (res.success) {
+              showBanner('nonCompBanner', 'success', res.message || 'Đã xóa báo cáo thành công.');
+              loadNonCompletionReports();
+              loadOverview();
+            } else {
+              showBanner('nonCompBanner', 'error', res.message || 'Lỗi khi xóa báo cáo.');
+            }
+          })
+          .withFailureHandler(function(err) {
+            showBanner('nonCompBanner', 'error', 'Lỗi mạng: ' + (err.message || err.toString()));
+          })
+          .adminDeleteNonCompletionReport(adminToken, rowIndex);
       }
     </script>
   </body>

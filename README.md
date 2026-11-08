@@ -7,18 +7,18 @@
 ## 📸 Hình ảnh giao diện (Demo Screenshots)
 
 ### 1. Phía Học sinh & Công khai
-| Form nộp bài & Bắt buộc đọc nội quy | Modal Nội quy & Cam kết tuân thủ | Tiến độ các lớp & Copy Zalo |
-| :---: | :---: | :---: |
-| ![Form nộp bài học sinh](docs/demo-student-form.png) | ![Nội quy nộp minh chứng](docs/demo-rules-modal.png) | ![Tiến độ thực hiện các lớp](docs/demo-student-progress.png) |
+| Form nộp bài & Bắt buộc đọc nội quy | Modal Nội quy & Cam kết tuân thủ | Báo không thực hiện được (Lý do nghỉ) | Tiến độ các lớp & Copy Zalo |
+| :---: | :---: | :---: | :---: |
+| ![Form nộp bài học sinh](docs/demo-student-form.png) | ![Nội quy nộp minh chứng](docs/demo-rules-modal.png) | ![Modal Báo không thực hiện](docs/demo-non-completion-modal.png) | ![Tiến độ thực hiện các lớp](docs/demo-student-progress.png) |
 
 ### 2. Phía Quản trị viên (Admin Portal)
 | Dashboard tiến độ phong trào & Chỉ tiêu | Quản lý Sĩ số & Số đoàn viên từng lớp |
 | :---: | :---: |
 | ![Admin Dashboard](docs/demo-admin-dashboard.png) | ![Quản lý lớp và sĩ số](docs/demo-admin-classes.png) |
 
-| Cấu hình phong trào, thời gian & chỉ tiêu |
-| :---: |
-| ![Cấu hình phong trào](docs/demo-admin-config.png) |
+| Cấu hình phong trào, thời gian & chỉ tiêu | Quản lý Báo cáo không thực hiện được |
+| :---: | :---: |
+| ![Cấu hình phong trào](docs/demo-admin-config.png) | ![Quản lý báo không thực hiện](docs/demo-admin-non-completion.png) |
 
 ## Tính năng
 
@@ -35,6 +35,18 @@
   - Hộp kiểm (checkbox) cam kết bị khóa (disabled) mặc định nhằm ngăn chặn việc học sinh bấm bừa mà không đọc.
   - Học sinh bấm **"Đọc nội quy (Bắt buộc)"** để mở modal chi tiết 5 quy định trọng yếu (độ rõ nét của ảnh, minh chứng chính chủ, giới hạn 3 lần nộp & tự động xóa file cũ, hình thức xử lý vi phạm).
   - Chỉ sau khi bấm nút **"Tôi đã đọc & Cam kết tuân thủ"**, checkbox mới tự động đánh dấu và mở khóa nút **"Gửi ảnh ngay"**.
+- **Báo không thực hiện được (Dành cho học sinh nghỉ ốm / hỏng thiết bị / lý do chính đáng)**:
+  - Cung cấp kênh báo cáo chính thức và minh bạch cho học sinh có trở ngại khách quan không thể tham gia phong trào (nghỉ ốm có phép, hỏng điện thoại/máy tính, bận lịch thi học sinh giỏi, việc gia đình đột xuất...).
+  - Nút **"Báo không thực hiện được (Lý do nghỉ / Không thể tham gia)"** với icon cảnh báo màu cam nổi bật đặt ngay dưới các nút tác vụ trên form nộp bài.
+  - **Tự động điền trước (pre-fill)**: Nếu học sinh đã nhập Họ tên, Lớp hoặc STT ở form chính, modal sẽ tự động lấy sang giúp tiết kiệm tối đa thời gian.
+  - **Chống trùng lặp & cập nhật tại chỗ**: Nếu học sinh gửi lại lý do mới cho cùng một hoạt động, hệ thống sử dụng thuật toán nhận diện học sinh `isSameStudent_` kết hợp `LockService` (khóa 30 giây) để cập nhật nội dung lý do mới ngay tại dòng cũ, tránh sinh dòng rác.
+  - **Lưu trữ chuyên biệt trong Google Sheet**: Dữ liệu tự động ghi vào sheet tab `BaoKhongThucHien` (trên file Google Sheet Học sinh) với định dạng header đỏ rượu vang (`#991B1B`), tự động đánh số STT liên tục và sắp xếp theo Lớp và STT.
+  - **Ghi nhận lịch sử kiểm toán (Audit Trail)**: Mọi lượt báo cáo hoặc cập nhật lý do đều được tự động ghi vào tab `Log` trên Sheet Quản trị.
+  - **Tab Quản lý riêng trên Admin Portal**:
+    - Tab **"Báo không thực hiện"** trên thanh điều hướng kèm huy hiệu (badge đỏ) hiển thị số lượng trường hợp cần xử lý.
+    - Bộ lọc đa năng theo Hoạt động/Phong trào, theo từng Lớp và ô tìm kiếm tức thì theo từ khóa, họ tên, lý do.
+    - Thẻ thống kê KPI tổng quan: Tổng số học sinh báo không tham gia, Số lớp có học sinh báo cáo.
+    - Bảng danh sách trực quan hiển thị đầy đủ thời gian, lớp, STT, họ tên, lý do cụ thể, ghi chú trạng thái và nút xóa dành cho quản trị viên.
 
 - **Kiến trúc Tách biệt 2 Google Spreadsheet Độc Lập (`STUDENT_SPREADSHEET_ID` & `ADMIN_SPREADSHEET_ID`)**:
   - **1. File Google Sheet Học sinh (`STUDENT_SPREADSHEET_ID`)**:
@@ -160,6 +172,17 @@ Bảng tổng hợp toàn bộ bài nộp học sinh của trường qua tất c
 **2. Các tab Hoạt động theo phong trào:**
 Mỗi phong trào có 1 tab riêng biệt (VD: `Tuan 1`, `Nu cuoi Viet Nam`...) gồm 6 cột: `STT | Họ và tên | Lớp | Thời gian | Link ảnh | Lần nộp`. Tự động kẻ bảng, hiển thị số lần nộp của học sinh và sắp xếp từ trên xuống dưới theo STT và Lớp.
 
+**3. Sheet `BaoKhongThucHien` (Danh sách học sinh báo không thực hiện được):**
+Bảng quản lý học sinh có lý do chính đáng không tham gia hoạt động, định dạng header đỏ rượu vang (`#991B1B`):
+- Cột A: `STT` (Được đánh số tăng dần liên tục 1, 2, 3...)
+- Cột B: `Thời gian báo`
+- Cột C: `Lớp`
+- Cột D: `STT Lớp`
+- Cột E: `Họ và tên`
+- Cột F: `Hoạt động / Phong trào`
+- Cột G: `Lý do không thực hiện`
+- Cột H: `Ghi chú` (Chờ xác nhận / Đã cập nhật lý do)
+
 ---
 
 ### B. FILE GOOGLE SHEET 2: QUẢN TRỊ & LOG (`ADMIN_SPREADSHEET_ID`)
@@ -212,6 +235,7 @@ Thư mục gốc/
 
 **Google Sheet 1 (Học sinh - `STUDENT_SPREADSHEET_ID`):**
 - `DanhSachHocSinh` (Sheet chính, tab đầu tiên): Toàn bộ bài nộp của học sinh, tự động sort theo Lớp & STT.
+- `BaoKhongThucHien`: Danh sách học sinh báo lý do không thể tham gia hoạt động (định dạng đỏ rượu vang `#991B1B`).
 - `Hoạt động ...`: Dữ liệu bài nộp riêng cho từng phong trào.
 
 **Google Sheet 2 (Quản trị & Log - `ADMIN_SPREADSHEET_ID`):**
